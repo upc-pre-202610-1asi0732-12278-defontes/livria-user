@@ -675,8 +675,6 @@ class _SingleBookViewState extends State<SingleBookView> {
     final t = Theme.of(context).textTheme;
     final int bookId = widget.b.id;
 
-    final String defaultIcon = 'https://cdn-icons-png.flaticon.com/512/3447/3447354.png';
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -796,12 +794,13 @@ class _SingleBookViewState extends State<SingleBookView> {
               physics: const NeverScrollableScrollPhysics(),
               itemCount: reviews.length,
               itemBuilder: (context, index) {
-                // Regla para el ícono: Si el post pertenece al usuario logueado, usar su ícono. Sino, usar el default.
-                final String iconToUse = (_username != null && reviews[index].username == _username)
-                    ? _userIconUrl ?? defaultIcon
-                    : defaultIcon;
+                // Solo inyectamos el icono si la reseña es del usuario logueado 
+                // para asegurar que se vea su cambio de icono inmediatamente.
+                final String? overrideIcon = (_username != null && reviews[index].username == _username)
+                    ? _userIconUrl
+                    : null;
 
-                return ReviewCard(review: reviews[index], userIconUrl: iconToUse,);
+                return ReviewCard(review: reviews[index], userIconUrl: overrideIcon,);
               },
             );
           },
