@@ -1,11 +1,17 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart'; // Para copiar al portapapeles
+import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../common/theme/app_colors.dart';
+import '../../../auth/infrastructure/datasource/auth_local_datasource.dart';
+import '../../../cart/domain/entities/cart_item.dart';
+import '../../../cart/domain/usecases/get_cart_items_usecase.dart';
+import '../../../cart/infrastructure/datasource/cart_remote_datasource.dart';
+import '../../../cart/infrastructure/repositories/cart_repository_impl.dart';
 import '../providers/order_provider.dart';
 import '../widgets/checkout_progress_bar.dart';
 
@@ -21,6 +27,11 @@ class _PaymentPageState extends State<PaymentPage> {
   final ImagePicker _picker = ImagePicker();
   final String _cci = "002191103718905053";
 
+  List<CartItem> _items = [];
+  double _subtotal = 0.0;
+
+  late final GetCartItemsUseCase _getCartItems;
+
   Future<void> _pickImage() async {
     final XFile? selected = await _picker.pickImage(source: ImageSource.gallery);
     if (selected != null) {
@@ -28,6 +39,46 @@ class _PaymentPageState extends State<PaymentPage> {
         _evidenceImage = File(selected.path);
       });
     }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    // INYECCIÓN DE DEPENDENCIAS
+    final client = http.Client();
+    final dataSource = CartRemoteDataSource(client: client);
+    final repository = CartRepositoryImpl(remoteDataSource: dataSource);
+
+    _getCartItems = GetCartItemsUseCase(repository);
+
+    // Cargar datos iniciales
+    _loadData();
+  }
+  Future<void> _loadData() async {
+    try {
+      final authDs = AuthLocalDataSource();
+      final userId = await authDs.getUserId();
+
+      if (userId != null) {
+        final items = await _getCartItems(userId);
+        setState(() {
+          _items = items;
+          _calculateSubtotal();
+        });
+      } else {
+        debugPrint("No se encontró un ID de usuario activo.");
+      }
+    } catch (e) {
+      debugPrint("Error loading cart: $e");
+    }
+  }
+
+  void _calculateSubtotal() {
+    double temp = 0;
+    for (var i in _items) {
+      temp += i.book.salePrice * i.quantity;
+    }
+    _subtotal = temp;
   }
 
   @override
@@ -187,13 +238,17 @@ class _PaymentPageState extends State<PaymentPage> {
   }
 
   Future<void> _handleSubmit(BuildContext context, OrderProvider provider) async {
-    const double totalAmount = 85.50; // Reemplaza esto por tu variable real
+    if (_subtotal <= 0) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("El carrito está vacío o el monto es 0")),
+      );
+      return;
+    }
 
-    // Ahora pasamos los 3 argumentos: context, imagen y el monto
     final success = await provider.submitOrderWithEvidence(
         context,
         _evidenceImage!,
-        totalAmount
+        _subtotal
     );
 
     if (success && context.mounted) {
