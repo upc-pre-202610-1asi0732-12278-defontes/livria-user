@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../common/theme/app_colors.dart';
 import '../../../../common/di/dependencies.dart' as di;
+import '../../../../common/utils/biometric_helper.dart';
 
 class SplashPage extends StatefulWidget {
   const SplashPage({super.key});
@@ -27,7 +28,21 @@ class _SplashPageState extends State<SplashPage> {
     // decidimos a dónde ir
     if (mounted) {
       if (user != null) {
-        context.go('/home');
+        // Verificar si biometría está habilitada
+        final isBiometricEnabled = await di.authLocalDataSource.isBiometricsEnabled();
+        
+        if (isBiometricEnabled) {
+          final authenticated = await BiometricHelper.authenticate();
+          if (authenticated) {
+            if (mounted) context.go('/home');
+          } else {
+            // Si cancela o falla, podemos mandarlo a login o dejarlo reintentar
+            // Por ahora, si falla biometría, le pedimos login de nuevo por seguridad
+            if (mounted) context.go('/login');
+          }
+        } else {
+          context.go('/home');
+        }
       } else {
         context.go('/login');
       }

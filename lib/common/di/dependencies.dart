@@ -13,6 +13,7 @@ late LoginUseCase loginUseCase;
 late RegisterUseCase registerUseCase;
 late CheckAuthStatusUseCase checkAuthStatusUseCase;
 late LogoutUseCase logoutUseCase;
+late AuthLocalDataSource authLocalDataSource;
 
 Future<void> initializeDependencies() async {
   // Externos
@@ -20,7 +21,7 @@ Future<void> initializeDependencies() async {
 
   // Data Sources
   final authRemoteDataSource = AuthRemoteDataSource(client: httpClient);
-  final authLocalDataSource = AuthLocalDataSource();
+  authLocalDataSource = AuthLocalDataSource();
 
   // Repositorios
   final authRepository = AuthRepositoryImpl(

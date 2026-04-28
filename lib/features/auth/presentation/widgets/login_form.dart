@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../common/theme/app_colors.dart';
 import '../../../../common/di/dependencies.dart' as di;
+import '../../../../common/utils/biometric_helper.dart';
 
 class LoginForm extends StatefulWidget {
   const LoginForm({super.key});
@@ -24,6 +25,52 @@ class _LoginFormState extends State<LoginForm> {
     super.dispose();
   }
 
+  void _showBiometricDialog() async {
+    final canCheck = await BiometricHelper.canCheckBiometrics();
+    final isSupported = await BiometricHelper.isDeviceSupported();
+
+    if (!canCheck && !isSupported) {
+      if (mounted) context.go('/home');
+      return;
+    }
+
+    if (!mounted) return;
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+        title: const Text('Enable Biometrics'),
+        content: const Text('Would you like to use biometrics for faster login next time?'),
+        actions: [
+          TextButton(
+            onPressed: () async {
+              await di.authLocalDataSource.setBiometricsEnabled(false);
+              if (context.mounted) {
+                Navigator.pop(context);
+                context.go('/home');
+              }
+            },
+            child: const Text('NO'),
+          ),
+          TextButton(
+            onPressed: () async {
+              final authenticated = await BiometricHelper.authenticate();
+              if (authenticated) {
+                await di.authLocalDataSource.setBiometricsEnabled(true);
+              }
+              if (context.mounted) {
+                Navigator.pop(context);
+                context.go('/home');
+              }
+            },
+            child: const Text('YES'),
+          ),
+        ],
+      ),
+    );
+  }
+
   void _performLogin() async {
     // ocultar teclado al presionar el botón
     FocusScope.of(context).unfocus();
@@ -42,7 +89,12 @@ class _LoginFormState extends State<LoginForm> {
         );
 
         if (mounted) {
-          context.go('/home');
+          final isBiometricSet = await di.authLocalDataSource.isBiometricsEnabled();
+          if (!isBiometricSet) {
+             _showBiometricDialog();
+          } else {
+            context.go('/home');
+          }
         }
 
       } catch (e) {

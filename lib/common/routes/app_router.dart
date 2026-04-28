@@ -12,7 +12,7 @@ import 'package:livria_user/features/orders/presentation/pages/location_page.dar
 
 import 'package:livria_user/features/home/presentation/pages/home_page.dart';
 import 'package:livria_user/features/book/presentation/pages/categories_page.dart';
-import 'package:livria_user/features/book/presentation/pages/category_books_page.dart'; // <-- NUEVO
+import 'package:livria_user/features/book/presentation/pages/category_books_page.dart';
 import 'package:livria_user/features/communities/presentation/pages/communities_page.dart';
 import 'package:livria_user/features/profile/presentation/pages/profile_page.dart';
 
@@ -20,7 +20,6 @@ import '../../features/book/application/services/book_service.dart';
 import '../../features/book/domain/entities/book.dart';
 import '../../features/book/domain/repositories/book_repository_impl.dart';
 import '../../features/book/infrastructure/datasource/book_remote_datasource.dart';
-import '../../features/book/presentation/pages/book_page.dart';
 import '../../features/book/presentation/widgets/book_wraper.dart';
 import '../../features/cart/presentation/pages/cart_page.dart';
 import '../../features/notifications/presentation/pages/notifications_page.dart';
@@ -31,14 +30,10 @@ import 'package:livria_user/features/auth/infrastructure/datasource/auth_local_d
 import 'package:livria_user/features/auth/infrastructure/datasource/auth_remote_datasource.dart';
 
 import '../../features/profile/presentation/pages/subscription_payment_page.dart';
-
-final AuthLocalDataSource authLocalDataSource = AuthLocalDataSource();
-final AuthRemoteDataSource authRemoteDataSource = AuthRemoteDataSource();
+import '../di/dependencies.dart' as di;
 
 final appRouter = GoRouter(
-  // initialLocation: '/home', // inicia la app en la ruta /home
-  // initialLocation: '/login', // inicia la app en la ruta /login
-    initialLocation: '/',// iniciamos en el splashpage
+    initialLocation: '/',
     routes: [
       GoRoute(
         path: '/',
@@ -55,7 +50,6 @@ final appRouter = GoRouter(
       GoRoute(
         path: '/register_step2',
         builder: (context, state) {
-          // extraemos los datos enviados desde el paso 1
           final data = state.extra as Map<String, String>?;
 
           if (data == null) {
@@ -69,17 +63,13 @@ final appRouter = GoRouter(
         },
       ),
 
-      // rutas con barra de navegación
         ShellRoute(
-            // mainshell
             builder: (context, state, child) {
                 return MainShell(child: child);
             },
-            // 'routes' son las páginas que se inyectan en el child
             routes: [
-              GoRoute(path: '/home', builder: (_, __) => HomePage(authLocalDataSource: authLocalDataSource, authRemoteDataSource: authRemoteDataSource,)),
-              GoRoute(path: '/categories', builder: (_, __) => const CategoriesPage()),
-              // ---------- NUEVA RUTA DETALLE POR CATEGORÍA ----------
+              GoRoute(path: '/home', builder: (context, state) => HomePage(authLocalDataSource: di.authLocalDataSource, authRemoteDataSource: AuthRemoteDataSource(),)),
+              GoRoute(path: '/categories', builder: (context, state) => const CategoriesPage()),
               GoRoute(
                 path: '/categories/:genre',
                 builder: (context, state) {
@@ -96,18 +86,10 @@ final appRouter = GoRouter(
                 },
               ),
                 GoRoute(
-                    path: '/home',
-                    builder: (context, state) => HomePage(authLocalDataSource: authLocalDataSource, authRemoteDataSource: authRemoteDataSource,),
-                ),
-                GoRoute(
-                    path: '/categories',
-                    builder: (context, state) => const CategoriesPage()
-                ),
-                GoRoute(
                     path: '/communities',
                     builder: (context, state) => CommunitiesPage(
-                      authLocalDataSource: authLocalDataSource,
-                      authRemoteDataSource: authRemoteDataSource,
+                      authLocalDataSource: di.authLocalDataSource,
+                      authRemoteDataSource: AuthRemoteDataSource(),
                     )
                 ),
                 GoRoute(
