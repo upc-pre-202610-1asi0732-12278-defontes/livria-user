@@ -22,7 +22,7 @@ class AuthRepositoryImpl implements AuthRepository {
     final String token = loginResponse['token'];
     final int userId = loginResponse['userId'];
 
-    await localDataSource.saveAuthData(token: token, userId: userId);
+    await localDataSource.saveAuthgData(token: token, userId: userId);
 
     final userModel = await remoteDataSource.getUserProfile(userId, token);
     return userModel;
