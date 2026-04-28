@@ -1,5 +1,7 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:flutter_stripe/flutter_stripe.dart';
+import 'package:flutter/services.dart'; // Para copiar al portapapeles
+import 'package:image_picker/image_picker.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
@@ -7,8 +9,26 @@ import '../../../../common/theme/app_colors.dart';
 import '../providers/order_provider.dart';
 import '../widgets/checkout_progress_bar.dart';
 
-class PaymentPage extends StatelessWidget {
+class PaymentPage extends StatefulWidget {
   const PaymentPage({super.key});
+
+  @override
+  State<PaymentPage> createState() => _PaymentPageState();
+}
+
+class _PaymentPageState extends State<PaymentPage> {
+  File? _evidenceImage;
+  final ImagePicker _picker = ImagePicker();
+  final String _cci = "002191103718905053";
+
+  Future<void> _pickImage() async {
+    final XFile? selected = await _picker.pickImage(source: ImageSource.gallery);
+    if (selected != null) {
+      setState(() {
+        _evidenceImage = File(selected.path);
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -23,7 +43,6 @@ class PaymentPage extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // HEADER
                 const Text(
                   "SUBMIT ORDER",
                   style: TextStyle(
@@ -34,11 +53,10 @@ class PaymentPage extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 30),
-
                 const Center(child: CheckoutProgressBar(currentStep: 3)),
                 const SizedBox(height: 30),
 
-                // TARJETA DE PAGO
+                // SECCIÓN DE TRANSFERENCIA
                 Container(
                   padding: const EdgeInsets.all(24.0),
                   decoration: BoxDecoration(
@@ -48,64 +66,85 @@ class PaymentPage extends StatelessWidget {
                   child: Column(
                     children: [
                       const Text(
-                        "PAYMENT METHOD",
+                        "BANK TRANSFER",
                         style: TextStyle(
                           color: AppColors.primaryOrange,
                           fontWeight: FontWeight.bold,
                           fontSize: 18,
                         ),
                       ),
-                      const SizedBox(height: 20),
-
+                      const SizedBox(height: 15),
                       const Text(
-                        "Enter your credit card details.",
+                        "Please transfer the total amount to the following CCI and upload the screenshot.",
                         textAlign: TextAlign.center,
                         style: TextStyle(color: AppColors.darkBlue, fontSize: 13),
                       ),
                       const SizedBox(height: 20),
 
-                      // --- CARD FIELD FIX ---
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(8),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.05),
-                              blurRadius: 5,
-                              offset: const Offset(0, 2),
-                            )
-                          ],
-                        ),
-
-                        child: SizedBox(
-                          height: 60, // Altura recomendada
-                          child: CardField(
-                            enablePostalCode: false,
-                            autofocus: false,
-                            style: const TextStyle(
-                              color: Colors.black,
-                              fontSize: 16,
-                            ),
-                            onCardChanged: (details) {
-                              // aquí puedes validar si details.complete == true
-                            },
+                      // CCI DISPLAY
+                      GestureDetector(
+                        onTap: () {
+                          Clipboard.setData(ClipboardData(text: _cci));
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text("CCI copied to clipboard")),
+                          );
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.all(15),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(color: AppColors.softTeal),
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                _cci,
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 15,
+                                  letterSpacing: 1.2,
+                                ),
+                              ),
+                              const SizedBox(width: 10),
+                              const Icon(Icons.copy, size: 18, color: AppColors.softTeal),
+                            ],
                           ),
                         ),
                       ),
 
-                      const SizedBox(height: 10),
-                      const Row(
-                        children: [
-                          Icon(Icons.lock, size: 14, color: Colors.grey),
-                          SizedBox(width: 5),
-                          Text(
-                            "Transactions are secure and encrypted.",
-                            style: TextStyle(fontSize: 12, color: Colors.grey),
+                      const SizedBox(height: 25),
+
+                      // IMAGE UPLOAD AREA
+                      GestureDetector(
+                        onTap: _pickImage,
+                        child: Container(
+                          width: double.infinity,
+                          height: 180,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(
+                              color: _evidenceImage == null ? Colors.grey.shade300 : AppColors.softTeal,
+                              style: BorderStyle.solid,
+                            ),
                           ),
-                        ],
-                      )
+                          child: _evidenceImage == null
+                              ? const Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(Icons.cloud_upload_outlined, size: 40, color: Colors.grey),
+                              SizedBox(height: 8),
+                              Text("Upload Transfer Screenshot", style: TextStyle(color: Colors.grey)),
+                            ],
+                          )
+                              : ClipRRect(
+                            borderRadius: BorderRadius.circular(12),
+                            child: Image.file(_evidenceImage!, fit: BoxFit.cover),
+                          ),
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -122,13 +161,10 @@ class PaymentPage extends StatelessWidget {
                       label: const Text("BACK", style: TextStyle(fontWeight: FontWeight.bold)),
                       style: TextButton.styleFrom(foregroundColor: AppColors.darkBlue),
                     ),
-
                     ElevatedButton(
-                      onPressed: orderProvider.isLoading
+                      onPressed: (orderProvider.isLoading || _evidenceImage == null)
                           ? null
-                          : () async {
-                        await _handlePayment(context, orderProvider);
-                      },
+                          : () => _handleSubmit(context, orderProvider),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppColors.softTeal,
                         foregroundColor: AppColors.darkBlue,
@@ -137,12 +173,8 @@ class PaymentPage extends StatelessWidget {
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                       ),
                       child: orderProvider.isLoading
-                          ? const SizedBox(
-                        width: 20,
-                        height: 20,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                          : const Text("PAY NOW", style: TextStyle(fontWeight: FontWeight.bold)),
+                          ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2))
+                          : const Text("CONFIRM ORDER", style: TextStyle(fontWeight: FontWeight.bold)),
                     ),
                   ],
                 ),
@@ -154,43 +186,19 @@ class PaymentPage extends StatelessWidget {
     );
   }
 
-  Future<void> _handlePayment(BuildContext context, OrderProvider provider) async {
-    try {
-      final paymentMethod = await Stripe.instance.createPaymentMethod(
-        params: const PaymentMethodParams.card(paymentMethodData: PaymentMethodData()),
-      );
+  Future<void> _handleSubmit(BuildContext context, OrderProvider provider) async {
+    const double totalAmount = 85.50; // Reemplaza esto por tu variable real
 
-      debugPrint("Stripe Token creado: ${paymentMethod.id}");
+    // Ahora pasamos los 3 argumentos: context, imagen y el monto
+    final success = await provider.submitOrderWithEvidence(
+        context,
+        _evidenceImage!,
+        totalAmount
+    );
 
-      final success = await provider.submitOrder(context);
-
-      if (success && context.mounted) {
-        provider.clearForm();
-        context.go('/checkout/confirmation');
-      }
-
-    } on StripeException catch (e) {
-      String errorMessage = e.error.localizedMessage ?? "Payment failed. Please check your card.";
-
-      if (e.error.code == FailureCode.Canceled) {
-        errorMessage = "Payment canceled by user.";
-      }
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(errorMessage), backgroundColor: AppColors.primaryOrange),
-      );
-
-    } catch (e) {
-      String friendlyError = "Something went wrong with the payment system.";
-
-      assert(() {
-        friendlyError = "Dev Error: $e";
-        return true;
-      }());
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(friendlyError), backgroundColor: AppColors.errorRed),
-      );
+    if (success && context.mounted) {
+      provider.clearForm();
+      context.go('/checkout/confirmation');
     }
   }
 }

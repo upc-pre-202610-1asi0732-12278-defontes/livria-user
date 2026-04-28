@@ -1,16 +1,23 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import '../../../auth/infrastructure/datasource/auth_local_datasource.dart';
+import '../../application/services/payment_service.dart';
 import '../../domain/entities/order.dart';
 import '../../domain/usecases/create_order_usecase.dart';
 
 class OrderProvider extends ChangeNotifier {
   final CreateOrderUseCase createOrderUseCase;
+  final PaymentService _paymentService = PaymentService();
 
   OrderProvider({required this.createOrderUseCase});
 
-  // --- ESTADO DEL FORMULARIO (Paso 1 y 2) ---
+  // --- ESTADO DE CARGA ---
+  bool _isLoading = false;
+  bool get isLoading => _isLoading;
 
-  // Paso 1: Información del Recipient
+  // --- ESTADO DEL FORMULARIO ---
+
+  // Paso 1: Recipient
   final TextEditingController nameController = TextEditingController();
   final TextEditingController lastNameController = TextEditingController();
   final TextEditingController phoneController = TextEditingController();
@@ -32,21 +39,47 @@ class OrderProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  // Estado de carga
-  bool _isLoading = false;
-  bool get isLoading => _isLoading;
+  // --- MÉTODO PRINCIPAL: SUBMIT CON EVIDENCIA ---
 
-  //MeTODO FINAL: CREAR LA ORDEN
-  Future<bool> submitOrder(BuildContext context) async {
+  Future<bool> submitOrderWithEvidence(BuildContext context, File evidence, double total) async {
     _isLoading = true;
     notifyListeners();
 
     try {
+      // 1. SUBIR CAPTURA A CLOUDINARY
+      // Sin esto no hay URL para el correo, así que es crítico.
+      final imageUrl = await _paymentService.uploadToCloudinary(evidence);
+      if (imageUrl == null) {
+        throw Exception("Error al subir la captura de pantalla. Inténtalo de nuevo.");
+      }
+
+      // 2. ENVIAR NOTIFICACIÓN POR CORREO (EmailJS - Opción A)
+      // Como pediste, si esto falla, NO se crea la orden en el backend.
+      final emailSent = await _paymentService.sendEmail(
+        serviceId: 'service_4t97z5d',
+        templateId: 'template_kgn4xci',
+        publicKey: '9sYY-fTEKMm4wPX-k',
+        params: {
+          'full_name': fullRecipientName,
+          'email': emailController.text,
+          'phone': phoneController.text,
+          'total_amount': 'S/ ${total.toStringAsFixed(2)}',
+          'order_details': _isDelivery
+              ? 'Envío a domicilio: ${addressController.text}, ${districtController.text}'
+              : 'Recojo en tienda',
+          'my_file': imageUrl,
+        },
+      );
+
+      if (!emailSent) {
+        throw Exception("No se pudo enviar la notificación de pago. La orden no fue procesada.");
+      }
+
+      // 3. CREAR ORDEN EN BACKEND C#
+      // Solo llegamos aquí si el correo se envió correctamente.
       final authDs = AuthLocalDataSource();
       final userId = await authDs.getUserId();
-
-
-      if (userId == null) throw Exception("User not logged in");
+      if (userId == null) throw Exception("Usuario no autenticado");
 
       ShippingDetails? shipping;
       if (_isDelivery) {
@@ -76,13 +109,19 @@ class OrderProvider extends ChangeNotifier {
     } catch (e) {
       _isLoading = false;
       notifyListeners();
-      debugPrint("Error creating order: $e");
+
+      // Feedback visual del error
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Error: ${e.toString()}")),
+        SnackBar(
+            content: Text("Error: ${e.toString()}"),
+            backgroundColor: Colors.redAccent
+        ),
       );
       return false;
     }
   }
+
+  // --- UTILITARIOS ---
 
   void clearForm() {
     nameController.clear();
