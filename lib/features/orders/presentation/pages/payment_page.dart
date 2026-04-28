@@ -65,8 +65,7 @@ class _PaymentPageState extends State<PaymentPage> {
           _items = items;
           _calculateSubtotal();
         });
-      } else {
-        debugPrint("No se encontró un ID de usuario activo.");
+        debugPrint("Monto cargado para el correo: $_subtotal");
       }
     } catch (e) {
       debugPrint("Error loading cart: $e");
