@@ -4,109 +4,160 @@ import 'package:livria_user/common/theme/app_colors.dart';
 import 'package:intl/intl.dart';
 import 'dart:convert';
 import 'dart:typed_data';
+import 'package:livria_user/features/auth/infrastructure/datasource/auth_local_datasource.dart';
+import 'package:livria_user/features/auth/infrastructure/datasource/auth_remote_datasource.dart';
 
-class PostCard extends StatelessWidget {
+class PostCard extends StatefulWidget {
   final Post post;
-  final String userIconUrl;
+  final String? userIconUrl;
 
   const PostCard({
     super.key,
     required this.post,
-    required this.userIconUrl,
+    this.userIconUrl,
   });
+
+  @override
+  State<PostCard> createState() => _PostCardState();
+}
+
+class _PostCardState extends State<PostCard> {
+  String? _fetchedIconData;
+  bool _isLoadingIcon = false;
+
+  @override
+  void initState() {
+    super.initState();
+    // Si no tenemos el icono inyectado (del usuario actual), buscamos el perfil del autor
+    if (widget.userIconUrl == null || widget.userIconUrl!.isEmpty || widget.userIconUrl!.contains('cdn-icons-png')) {
+      _fetchUserIcon();
+    }
+  }
+
+  Future<void> _fetchUserIcon() async {
+    if (widget.post.userId <= 0) return;
+    
+    if (mounted) setState(() => _isLoadingIcon = true);
+    try {
+      final authLocal = AuthLocalDataSource();
+      final token = await authLocal.getToken();
+      if (token != null) {
+        final authRemote = AuthRemoteDataSource();
+        final user = await authRemote.getUserProfile(widget.post.userId, token);
+        if (mounted && user.icon != null && user.icon != "string") {
+          setState(() {
+            _fetchedIconData = user.icon;
+          });
+        }
+      }
+    } catch (e) {
+      debugPrint('Error PostCard Icon Fetch: $e');
+    } finally {
+      if (mounted) setState(() => _isLoadingIcon = false);
+    }
+  }
 
   String _formatTimestamp(dynamic timestamp) {
     DateTime dateTime;
     try {
-      if (timestamp == null) return 'Fecha desconocida';
-
+      if (timestamp == null) return 'Unknown date';
       String utcTimestamp = timestamp is String
           ? (timestamp.endsWith('Z') ? timestamp : '${timestamp}Z')
           : timestamp.toString();
-
       dateTime = DateTime.parse(utcTimestamp).toLocal();
-
-      return DateFormat('dd/MM/yyyy \'a las\' HH:mm').format(dateTime);
+      return DateFormat('dd/MM/yyyy \'at\' HH:mm').format(dateTime);
     } catch (e) {
-      return 'Fecha desconocida';
+      return 'Unknown date';
     }
   }
 
-  // Widget de utilidad para el Avatar (extraído para claridad)
-  Widget _buildUserAvatar() {
-    const double radius = 18;
-    const String defaultIconUrl = 'https://cdn-icons-png.flaticon.com/512/3447/3447354.png';
-    final String effectiveUrl = userIconUrl.isNotEmpty ? userIconUrl : defaultIconUrl;
+  Widget _buildAvatarImage(String iconData) {
+    if (iconData.isEmpty || iconData == "string") return _buildDefaultIcon();
 
-    return CircleAvatar(
-      radius: radius,
-      backgroundColor: AppColors.softTeal.withOpacity(0.2),
-      child: ClipOval(
-        child: Image.network(
-          effectiveUrl,
-          width: radius * 2,
-          height: radius * 2,
+    // SOPORTE PARA BASE64
+    if (iconData.length > 60 && !iconData.startsWith('http')) {
+      try {
+        String cleanBase64 = iconData;
+        if (iconData.contains(',')) {
+          cleanBase64 = iconData.split(',').last;
+        }
+        return Image.memory(
+          base64Decode(cleanBase64.trim()),
+          width: 36,
+          height: 36,
           fit: BoxFit.cover,
-          errorBuilder: (context, error, stackTrace) => const Icon(
-            Icons.account_circle,
-            color: AppColors.softTeal,
-            size: radius * 2,
-          ),
-          loadingBuilder: (context, child, loadingProgress) {
-            if (loadingProgress == null) return child;
-            return const Center(
-              child: SizedBox(
-                width: radius * 1.5,
-                height: radius * 1.5,
-                child: CircularProgressIndicator(
-                  color: AppColors.softTeal,
-                  strokeWidth: 2,
-                ),
-              ),
-            );
-          },
-        ),
-      ),
+          errorBuilder: (context, error, stackTrace) => _buildDefaultIcon(),
+        );
+      } catch (e) {
+        return _buildDefaultIcon();
+      }
+    }
+
+    // SOPORTE PARA URL
+    final String fullUrl = iconData.startsWith('http') 
+        ? iconData 
+        : 'https://lililivria.azurewebsites.net/${iconData.startsWith('/') ? iconData.substring(1) : iconData}';
+
+    return Image.network(
+      fullUrl,
+      width: 36,
+      height: 36,
+      fit: BoxFit.cover,
+      errorBuilder: (context, error, stackTrace) => _buildDefaultIcon(),
     );
+  }
+
+  Widget _buildDefaultIcon() {
+    return const Icon(Icons.account_circle, color: AppColors.softTeal, size: 36);
   }
 
   @override
   Widget build(BuildContext context) {
     const double borderRadius = 12.0;
+    const double avatarRadius = 18.0;
+
+    // Prioridad de imagen
+    String? effectiveIconData = widget.userIconUrl;
+    if (effectiveIconData == null || effectiveIconData.isEmpty || effectiveIconData.contains('cdn-icons-png')) {
+       effectiveIconData = _fetchedIconData;
+    }
 
     return Card(
       elevation: 2,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(borderRadius),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(borderRadius)),
       margin: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
       child: Padding(
         padding: const EdgeInsets.all(12.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // 1. HEADER: Avatar, Username y Timestamp
             Row(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                // Avatar Simplificado
-                _buildUserAvatar(),
+                CircleAvatar(
+                  radius: avatarRadius,
+                  backgroundColor: AppColors.softTeal.withOpacity(0.2),
+                  child: ClipOval(
+                    child: _isLoadingIcon 
+                      ? const SizedBox(width: 15, height: 15, child: CircularProgressIndicator(strokeWidth: 2))
+                      : (effectiveIconData != null) 
+                          ? _buildAvatarImage(effectiveIconData)
+                          : _buildDefaultIcon(),
+                  ),
+                ),
                 const SizedBox(width: 8),
-
-                // Username y Timestamp
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      '@${post.username}',
+                      '@${widget.post.username}',
                       style: Theme.of(context).textTheme.titleSmall!.copyWith(
                         fontWeight: FontWeight.bold,
                         color: AppColors.darkBlue,
                       ),
                     ),
-                    // Timestamp
                     Text(
-                      _formatTimestamp(post.createdAt),
+                      _formatTimestamp(widget.post.createdAt),
                       style: Theme.of(context).textTheme.bodySmall!.copyWith(
                         color: AppColors.black.withOpacity(0.6),
                       ),
@@ -115,50 +166,39 @@ class PostCard extends StatelessWidget {
                 ),
               ],
             ),
-
             const SizedBox(height: 12),
-
-            // 2. CONTENIDO DEL POST (Texto)
             Text(
-              post.content,
-              style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-                color: AppColors.black,
-              ),
+              widget.post.content,
+              style: Theme.of(context).textTheme.bodyLarge!.copyWith(color: AppColors.black),
             ),
-
-            // 3. IMAGEN DEL POST
-            if (post.img != null && post.img!.isNotEmpty) ...[
+            if (widget.post.img != null && widget.post.img!.isNotEmpty && widget.post.img != "string") ...[
               const SizedBox(height: 12),
               ClipRRect(
                 borderRadius: BorderRadius.circular(8.0),
                 child: Builder(
-                    builder: (context) {
-                      final imageStr = post.img!;
-
-                      // CASO A: Es Base64
-                      if (imageStr.startsWith('data:image')) {
-                        try {
-                          final base64String = imageStr.split(',').last;
-                          final Uint8List bytes = base64Decode(base64String);
-                          return Image.memory(bytes, fit: BoxFit.cover, width: double.infinity);
-                        } catch (e) {
-                          return const SizedBox();
-                        }
+                  builder: (context) {
+                    final imageStr = widget.post.img!;
+                    if (imageStr.startsWith('data:image') || (imageStr.length > 100 && !imageStr.startsWith('http'))) {
+                      try {
+                        final base64String = imageStr.contains(',') ? imageStr.split(',').last : imageStr;
+                        final Uint8List bytes = base64Decode(base64String);
+                        return Image.memory(bytes, fit: BoxFit.cover, width: double.infinity);
+                      } catch (e) {
+                        return const SizedBox();
                       }
-                      // CASO B: Es URL normal
-                      else {
-                        return Image.network(
-                          imageStr,
-                          fit: BoxFit.cover,
-                          width: double.infinity,
-                          errorBuilder: (_, __, ___) => Container(
-                            padding: const EdgeInsets.all(16),
-                            color: AppColors.lightGrey,
-                            child: const Center(child: Icon(Icons.broken_image)),
-                          ),
-                        );
-                      }
+                    } else {
+                      return Image.network(
+                        imageStr,
+                        fit: BoxFit.cover,
+                        width: double.infinity,
+                        errorBuilder: (_, __, ___) => Container(
+                          padding: const EdgeInsets.all(16),
+                          color: AppColors.lightGrey,
+                          child: const Center(child: Icon(Icons.broken_image)),
+                        ),
+                      );
                     }
+                  }
                 ),
               ),
             ],
