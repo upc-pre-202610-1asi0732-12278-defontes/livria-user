@@ -10,7 +10,9 @@ import 'package:http/http.dart' as http;
 import 'package:livria_user/common/di/dependencies.dart' as di;
 
 import 'features/communities/domain/repositories/post_repository_impl.dart';
+import 'features/communities/infrastructure/datasource/comment_remote_datasource.dart';
 import 'features/communities/infrastructure/datasource/post_remote_datasource.dart';
+import 'features/communities/infrastructure/repositories/comment_repository_impl.dart';
 import 'features/communities/presentation/providers/post_provider.dart';
 import 'features/orders/domain/usecases/get_user_orders_usecase.dart';
 import 'features/orders/presentation/providers/order_provider.dart';
@@ -70,9 +72,8 @@ class _MyAppState extends State<MyApp> {
         ),
         ChangeNotifierProvider(
           create: (_) => PostProvider(
-            postRepository: PostRepositoryImpl(
-              PostRemoteDataSource(client: http.Client()),
-            ),
+            postRepository: PostRepositoryImpl(PostRemoteDataSource()),
+            commentRepository: CommentRepositoryImpl(CommentRemoteDataSource()),
           ),
         ),
 

@@ -1,26 +1,23 @@
 import 'package:flutter/material.dart';
+import 'package:livria_user/features/communities/presentation/widgets/use_avatar.dart';
 import '../../domain/entities/post.dart';
 import 'package:livria_user/common/theme/app_colors.dart';
 import 'package:intl/intl.dart';
 import 'dart:convert';
 import 'dart:typed_data';
-import 'package:livria_user/features/auth/infrastructure/datasource/auth_local_datasource.dart';
-import 'package:livria_user/features/auth/infrastructure/datasource/auth_remote_datasource.dart';
+
+import '../pages/post_detail_page.dart';
 
 class PostCard extends StatefulWidget {
   final Post post;
   final String? userIconUrl;
   final bool isOwner;
-  final VoidCallback? onDelete;
-  final VoidCallback? onEdit;
 
   const PostCard({
     super.key,
     required this.post,
     this.userIconUrl,
     this.isOwner = false,
-    this.onDelete,
-    this.onEdit,
   });
 
   @override
@@ -29,38 +26,10 @@ class PostCard extends StatefulWidget {
 
 class _PostCardState extends State<PostCard> {
   String? _fetchedIconData;
-  bool _isLoadingIcon = false;
 
   @override
   void initState() {
     super.initState();
-    // Si no tenemos el icono inyectado (del usuario actual), buscamos el perfil del autor
-    if (widget.userIconUrl == null || widget.userIconUrl!.isEmpty || widget.userIconUrl!.contains('cdn-icons-png')) {
-      _fetchUserIcon();
-    }
-  }
-
-  Future<void> _fetchUserIcon() async {
-    if (widget.post.userId <= 0) return;
-    
-    if (mounted) setState(() => _isLoadingIcon = true);
-    try {
-      final authLocal = AuthLocalDataSource();
-      final token = await authLocal.getToken();
-      if (token != null) {
-        final authRemote = AuthRemoteDataSource();
-        final user = await authRemote.getUserProfile(widget.post.userId, token);
-        if (mounted && user.icon != null && user.icon != "string") {
-          setState(() {
-            _fetchedIconData = user.icon;
-          });
-        }
-      }
-    } catch (e) {
-      debugPrint('Error PostCard Icon Fetch: $e');
-    } finally {
-      if (mounted) setState(() => _isLoadingIcon = false);
-    }
   }
 
   String _formatTimestamp(dynamic timestamp) {
@@ -77,50 +46,9 @@ class _PostCardState extends State<PostCard> {
     }
   }
 
-  Widget _buildAvatarImage(String iconData) {
-    if (iconData.isEmpty || iconData == "string") return _buildDefaultIcon();
-
-    // SOPORTE PARA BASE64
-    if (iconData.length > 60 && !iconData.startsWith('http')) {
-      try {
-        String cleanBase64 = iconData;
-        if (iconData.contains(',')) {
-          cleanBase64 = iconData.split(',').last;
-        }
-        return Image.memory(
-          base64Decode(cleanBase64.trim()),
-          width: 36,
-          height: 36,
-          fit: BoxFit.cover,
-          errorBuilder: (context, error, stackTrace) => _buildDefaultIcon(),
-        );
-      } catch (e) {
-        return _buildDefaultIcon();
-      }
-    }
-
-    // SOPORTE PARA URL
-    final String fullUrl = iconData.startsWith('http') 
-        ? iconData 
-        : 'https://lililivria.azurewebsites.net/${iconData.startsWith('/') ? iconData.substring(1) : iconData}';
-
-    return Image.network(
-      fullUrl,
-      width: 36,
-      height: 36,
-      fit: BoxFit.cover,
-      errorBuilder: (context, error, stackTrace) => _buildDefaultIcon(),
-    );
-  }
-
-  Widget _buildDefaultIcon() {
-    return const Icon(Icons.account_circle, color: AppColors.softTeal, size: 36);
-  }
-
   @override
   Widget build(BuildContext context) {
     const double borderRadius = 12.0;
-    const double avatarRadius = 18.0;
 
     // Prioridad de imagen
     String? effectiveIconData = widget.userIconUrl;
@@ -140,16 +68,10 @@ class _PostCardState extends State<PostCard> {
             Row(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                CircleAvatar(
-                  radius: avatarRadius,
-                  backgroundColor: AppColors.softTeal.withOpacity(0.2),
-                  child: ClipOval(
-                    child: _isLoadingIcon 
-                      ? const SizedBox(width: 15, height: 15, child: CircularProgressIndicator(strokeWidth: 2))
-                      : (effectiveIconData != null) 
-                          ? _buildAvatarImage(effectiveIconData)
-                          : _buildDefaultIcon(),
-                  ),
+                UserAvatar(
+                  userId: widget.post.userId,
+                  radius: 18,
+                  knownIconUrl: widget.userIconUrl,
                 ),
                 const SizedBox(width: 8),
                 Column(
@@ -170,21 +92,6 @@ class _PostCardState extends State<PostCard> {
                     ),
                   ],
                 ),
-                if (widget.isOwner) ...[
-                  const Spacer(),
-                  IconButton(
-                    icon: const Icon(Icons.edit_outlined, size: 20, color: AppColors.darkBlue),
-                    onPressed: widget.onEdit,
-                    constraints: const BoxConstraints(),
-                    padding: EdgeInsets.zero,
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.delete_outline, size: 20, color: Colors.redAccent),
-                    onPressed: widget.onDelete,
-                    constraints: const BoxConstraints(),
-                    padding: EdgeInsets.zero,
-                  ),
-                ],
               ],
             ),
             const SizedBox(height: 12),
@@ -223,6 +130,34 @@ class _PostCardState extends State<PostCard> {
                 ),
               ),
             ],
+            const SizedBox(height: 8),
+            const Divider(height: 1, color: AppColors.lightGrey),
+            Row(
+              children: [
+                // Like
+                IconButton(
+                  icon: const Icon(Icons.thumb_up_alt_outlined, size: 20, color: AppColors.primaryOrange),
+                  onPressed: () {},
+                ),
+                // Dislike
+                IconButton(
+                  icon: const Icon(Icons.thumb_down_alt_outlined, size: 20, color: AppColors.primaryOrange),
+                  onPressed: () {},
+                ),
+                const Spacer(),
+                TextButton.icon(
+                  onPressed: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => PostDetailPage(
+                      post: widget.post,
+                      isOwner: widget.isOwner,
+                    )),
+                  ),
+                  icon: const Icon(Icons.chat_bubble_outline, size: 20, color: AppColors.darkBlue),
+                  label: const Text('Comment', style: TextStyle(color: AppColors.darkBlue, fontSize: 13)),
+                ),
+              ],
+            ),
           ],
         ),
       ),
