@@ -178,7 +178,6 @@ class _PostCardState extends State<PostCard> {
                     constraints: const BoxConstraints(),
                     padding: EdgeInsets.zero,
                   ),
-                  const SizedBox(width: 8),
                   IconButton(
                     icon: const Icon(Icons.delete_outline, size: 20, color: Colors.redAccent),
                     onPressed: widget.onDelete,

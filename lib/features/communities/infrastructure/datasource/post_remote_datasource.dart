@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
 import 'package:livria_user/common/config/env.dart';
 import '../../../auth/infrastructure/datasource/auth_local_datasource.dart';
@@ -102,22 +103,44 @@ class PostRemoteDataSource {
   }
 
   // Borra un post
+  // Borra un post
   Future<void> deletePost(int postId) async {
     final uri = Uri.parse('$_base$_postsPath/$postId');
     final headers = await _getAuthenticatedHeaders();
 
-    final response = await _client.delete(uri, headers: headers);
+    final userId = await _authDs.getUserId();
+
+    final body = jsonEncode({
+      "resource": "post",
+      "userId": userId,
+      "id": postId
+    });
+
+    debugPrint("🔴 [POST DELETE] Requesting: $uri with body: $body");
+
+    final request = http.Request('DELETE', uri)
+      ..headers.addAll(headers)
+      ..body = body;
+
+    final streamedResponse = await _client.send(request);
+    final response = await http.Response.fromStream(streamedResponse);
+
+    debugPrint("🟣 [POST DELETE] Response: ${response.statusCode}");
+    debugPrint("📦 [BODY]: ${response.body}");
 
     if (response.statusCode != 200 && response.statusCode != 204) {
       throw Exception('Failed to delete post: ${response.body}');
     }
   }
+
   // Editar post
   Future<Post> updatePost(int postId, String content, String? img) async {
     final uri = Uri.parse('$_base$_postsPath/$postId');
     final headers = await _getAuthenticatedHeaders();
+    final userId = await _authDs.getUserId();
 
     final body = jsonEncode({
+      "userId": userId,
       "content": content,
       "img": img ?? "",
     });

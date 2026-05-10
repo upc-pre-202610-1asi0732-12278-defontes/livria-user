@@ -53,27 +53,28 @@ class PostProvider extends ChangeNotifier {
         img: img,
       );
 
-      // Insertar al inicio para que se vea de inmediato
       _posts.insert(0, newPost);
+
       notifyListeners();
       return true;
     } catch (e) {
-      debugPrint("Error creando post: $e");
+      debugPrint("❌ Error al añadir post en Provider: $e");
       return false;
     }
   }
 
   // Borrar post
   Future<bool> deletePost(int postId) async {
+    debugPrint("🟢 Iniciando borrado del post: $postId");
     try {
       await postRepository.deletePost(postId);
+      debugPrint("✅ Borrado en servidor exitoso");
 
-      // Borrado reactivo en local
       _posts.removeWhere((p) => p.id == postId);
       notifyListeners();
       return true;
     } catch (e) {
-      debugPrint("Error borrando post: $e");
+      debugPrint("❌ Error en PostProvider.deletePost: $e");
       return false;
     }
   }

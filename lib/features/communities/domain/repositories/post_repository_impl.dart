@@ -35,13 +35,7 @@ class PostRepositoryImpl implements PostRepository {
 
   @override
   Future<List<Post>> fetchPostsByCommunityId(int communityId, int offset, int limit) async {
-    // CORRECCIÓN CLAVE: La variable debe ser de tipo List<Post> porque
-    // _dataSource.fetchPostsByCommunityId devuelve Future<List<Post>>.
-    // El DataSource ahora es responsable de manejar los códigos HTTP y el mapeo.
     final List<Post> posts = await _dataSource.fetchPostsByCommunityId(communityId, offset, limit);
-
-    // Simplemente devolvemos la lista. Si el DataSource devuelve una excepción
-    // (por error HTTP), esta se propagará automáticamente.
     return posts;
   }
 
