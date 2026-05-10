@@ -46,7 +46,12 @@ class _PostDetailPageState extends State<PostDetailPage> {
 
   Future<void> _loadUserId() async {
     final id = await AuthLocalDataSource().getUserId();
-    if (mounted) setState(() => _currentUserId = id);
+    if (mounted) {
+      setState(() => _currentUserId = id);
+      if (id != null) {
+        context.read<PostProvider>().isLoadingCommentsForPost(widget.post.id);
+      }
+    }
   }
 
   @override
@@ -284,6 +289,43 @@ class _PostDetailPageState extends State<PostDetailPage> {
                     const SizedBox(height: 12),
                     _buildPostImage(widget.post.img),
                   ],
+                  const SizedBox(height: 12),
+                  Consumer<PostProvider>(
+                    builder: (context, provider, _) {
+                      final likes = provider.likesForPost(widget.post.id);
+                      final dislikes = provider.dislikesForPost(widget.post.id);
+                      final userReaction = provider.userReactionForPost(widget.post.id);
+
+                      return Row(
+                        children: [
+                          IconButton(
+                            icon: Icon(
+                              userReaction == 1 ? Icons.thumb_up_alt : Icons.thumb_up_alt_outlined,
+                              size: 22,
+                              color: userReaction == 1 ? AppColors.primaryOrange : AppColors.primaryOrange,
+                            ),
+                            onPressed: _currentUserId == null ? null : () {
+                              context.read<PostProvider>().reactToPost(widget.post.id, _currentUserId!, 1);
+                            },
+                          ),
+                          Text('$likes', style: const TextStyle(fontSize: 13, color: AppColors.primaryOrange)),
+                          const SizedBox(width: 12),
+                          IconButton(
+                            icon: Icon(
+                              userReaction == 2 ? Icons.thumb_down_alt : Icons.thumb_down_alt_outlined,
+                              size: 22,
+                              color: userReaction == 2 ? AppColors.primaryOrange : AppColors.primaryOrange,
+                            ),
+                            onPressed: _currentUserId == null ? null : () {
+                              context.read<PostProvider>().reactToPost(widget.post.id, _currentUserId!, 2);
+                            },
+                          ),
+                          Text('$dislikes', style: const TextStyle(fontSize: 13, color: AppColors.primaryOrange)),
+                        ],
+                      );
+                    },
+                  ),
+
                   const SizedBox(height: 20),
                   const Divider(thickness: 1.5, color: AppColors.lightGrey),
                   const SizedBox(height: 8),

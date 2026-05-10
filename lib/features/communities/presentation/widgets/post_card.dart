@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:livria_user/features/communities/presentation/widgets/use_avatar.dart';
+import 'package:provider/provider.dart';
+import '../../../auth/infrastructure/datasource/auth_local_datasource.dart';
 import '../../domain/entities/post.dart';
 import 'package:livria_user/common/theme/app_colors.dart';
 import 'package:intl/intl.dart';
@@ -7,6 +9,7 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import '../pages/post_detail_page.dart';
+import '../providers/post_provider.dart';
 
 class PostCard extends StatefulWidget {
   final Post post;
@@ -30,6 +33,12 @@ class _PostCardState extends State<PostCard> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final userId = await AuthLocalDataSource().getUserId();
+      if (userId != null && mounted) {
+        context.read<PostProvider>().loadReactions(widget.post.id, userId);
+      }
+    });
   }
 
   String _formatTimestamp(dynamic timestamp) {
@@ -132,31 +141,61 @@ class _PostCardState extends State<PostCard> {
             ],
             const SizedBox(height: 8),
             const Divider(height: 1, color: AppColors.lightGrey),
-            Row(
-              children: [
-                // Like
-                IconButton(
-                  icon: const Icon(Icons.thumb_up_alt_outlined, size: 20, color: AppColors.primaryOrange),
-                  onPressed: () {},
-                ),
-                // Dislike
-                IconButton(
-                  icon: const Icon(Icons.thumb_down_alt_outlined, size: 20, color: AppColors.primaryOrange),
-                  onPressed: () {},
-                ),
-                const Spacer(),
-                TextButton.icon(
-                  onPressed: () => Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (_) => PostDetailPage(
-                      post: widget.post,
-                      isOwner: widget.isOwner,
-                    )),
-                  ),
-                  icon: const Icon(Icons.chat_bubble_outline, size: 20, color: AppColors.darkBlue),
-                  label: const Text('Comment', style: TextStyle(color: AppColors.darkBlue, fontSize: 13)),
-                ),
-              ],
+            // Reemplaza el Row de likes por este:
+            Consumer<PostProvider>(
+              builder: (context, provider, _) {
+                final likes = provider.likesForPost(widget.post.id);
+                final dislikes = provider.dislikesForPost(widget.post.id);
+                final userReaction = provider.userReactionForPost(widget.post.id);
+
+                return Row(
+                  children: [
+                    IconButton(
+                      icon: Icon(
+                        userReaction == 1 ? Icons.thumb_up_alt : Icons.thumb_up_alt_outlined,
+                        size: 20,
+                        color: userReaction == 1 ? AppColors.primaryOrange : AppColors.primaryOrange,
+                      ),
+                      onPressed: () async {
+                        final userId = await AuthLocalDataSource().getUserId();
+                        debugPrint('userReaction ANTES: ${provider.userReactionForPost(widget.post.id)}');
+                        if (userId != null) {
+                          await context.read<PostProvider>().reactToPost(widget.post.id, userId, 1);
+                          debugPrint('userReaction DESPUÉS: ${context.read<PostProvider>().userReactionForPost(widget.post.id)}');
+                        }
+                      },
+                    ),
+                    Text('$likes', style: const TextStyle(fontSize: 12, color: AppColors.primaryOrange)),
+                    const SizedBox(width: 8),
+                    IconButton(
+                      icon: Icon(
+                        userReaction == 2 ? Icons.thumb_down_alt : Icons.thumb_down_alt_outlined,
+                        size: 20,
+                        color: userReaction == 2 ? AppColors.primaryOrange : AppColors.primaryOrange,
+                      ),
+                      onPressed: () async {
+                        final userId = await AuthLocalDataSource().getUserId();
+                        if (userId != null) {
+                          context.read<PostProvider>().reactToPost(widget.post.id, userId, 2);
+                        }
+                      },
+                    ),
+                    Text('$dislikes', style: const TextStyle(fontSize: 12, color: AppColors.primaryOrange)),
+                    const Spacer(),
+                    TextButton.icon(
+                      onPressed: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => PostDetailPage(
+                          post: widget.post,
+                          isOwner: widget.isOwner,
+                        )),
+                      ),
+                      icon: const Icon(Icons.chat_bubble_outline, size: 20, color: AppColors.darkBlue),
+                      label: const Text('Comment', style: TextStyle(color: AppColors.darkBlue, fontSize: 13)),
+                    ),
+                  ],
+                );
+              },
             ),
           ],
         ),

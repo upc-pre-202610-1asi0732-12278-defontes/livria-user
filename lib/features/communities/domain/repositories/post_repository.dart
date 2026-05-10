@@ -18,4 +18,11 @@ abstract class PostRepository {
 
   Future<void> deletePost(int postId);
   Future<Post> updatePost(int postId, String content, String? img);
+
+  Future<Map<String, int>> fetchReactionCounts(int postId);
+  Future<int> fetchUserReactionStatus(int postId, int userId);
+  Future<void> reactToPost(int postId, int userId, int type);
+
+  Future<List<int>> fetchLikedPostIds(int userId);
+  Future<List<int>> fetchDislikedPostIds(int userId);
 }

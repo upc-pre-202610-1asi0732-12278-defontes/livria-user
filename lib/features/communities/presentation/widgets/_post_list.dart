@@ -21,11 +21,17 @@ class _PostListState extends State<PostList> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
       context.read<PostProvider>().loadPosts(widget.communityId);
+
       final profileProvider = context.read<ProfileProvider>();
       if (profileProvider.user == null) {
         profileProvider.loadData();
+      }
+
+      final userId = widget.currentUserId;
+      if (userId != null) {
+        context.read<PostProvider>().loadUserReactions(userId);
       }
     });
   }

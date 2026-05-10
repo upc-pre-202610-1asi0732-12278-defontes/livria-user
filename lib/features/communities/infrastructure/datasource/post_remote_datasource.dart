@@ -153,4 +153,89 @@ class PostRemoteDataSource {
       throw Exception('Fallo al editar post: ${response.body}');
     }
   }
+
+  // Obtener conteo de likes/dislikes
+  Future<Map<String, int>> fetchReactionCounts(int postId) async {
+    final uri = Uri.parse('$_base$_postsPath/$postId/reactions/counts');
+    final headers = await _getAuthenticatedHeaders();
+    final response = await _client.get(uri, headers: headers);
+
+    if (response.statusCode == 200) {
+      final json = jsonDecode(response.body);
+      return {
+        'likes': json['likes'] ?? 0,
+        'dislikes': json['dislikes'] ?? 0,
+      };
+    } else {
+      throw Exception('Failed to fetch reaction counts: ${response.statusCode}');
+    }
+  }
+
+  // Verificar reacción del usuario (devuelve 1=like, 2=dislike, 0=ninguna)
+  Future<int> fetchUserReactionStatus(int postId, int userId) async {
+    final uri = Uri.parse('$_base$_postsPath/$postId/user/$userId/reaction-status');
+    final headers = await _getAuthenticatedHeaders();
+    final response = await _client.get(uri, headers: headers);
+
+    debugPrint('🟡 reactionStatus → status: ${response.statusCode}');
+    debugPrint('🟡 reactionStatus → body: ${response.body}');
+
+    if (response.statusCode == 200) {
+      final json = jsonDecode(response.body);
+      return json['status'] ?? 0;
+    } else if (response.statusCode == 404) {
+      return 0;
+    } else {
+      throw Exception('Failed to fetch reaction status: ${response.statusCode}');
+    }
+  }
+
+  // Registrar, actualizar o eliminar reacción (type: 1=like, 2=dislike)
+  Future<void> reactToPost(int postId, int userId, int type) async {
+    final uri = Uri.parse('$_base$_postsPath/$postId/reactions');
+    final headers = await _getAuthenticatedHeaders();
+    final body = jsonEncode({'userId': userId, 'type': type});
+
+    debugPrint('🔵 reactToPost → uri: $uri');
+    debugPrint('🔵 reactToPost → body: $body');
+
+    final response = await _client.post(uri, headers: headers, body: body);
+
+    debugPrint('🔵 reactToPost → status: ${response.statusCode}');
+    debugPrint('🔵 reactToPost → response: ${response.body}');
+
+    if (response.statusCode != 200 && response.statusCode != 201 && response.statusCode != 204) {
+      throw Exception('Failed to react to post: ${response.body}');
+    }
+  }
+
+  Future<List<int>> fetchLikedPostIds(int userId) async {
+    final uri = Uri.parse('$_base$_postsPath/user/$userId/liked');
+    final headers = await _getAuthenticatedHeaders();
+    final response = await _client.get(uri, headers: headers);
+
+    if (response.statusCode == 200) {
+      final List<dynamic> jsonList = jsonDecode(response.body);
+      return jsonList.map((p) => p['id'] as int).toList();
+    } else if (response.statusCode == 404) {
+      return [];
+    } else {
+      throw Exception('Failed to fetch liked posts: ${response.statusCode}');
+    }
+  }
+
+  Future<List<int>> fetchDislikedPostIds(int userId) async {
+    final uri = Uri.parse('$_base$_postsPath/user/$userId/disliked');
+    final headers = await _getAuthenticatedHeaders();
+    final response = await _client.get(uri, headers: headers);
+
+    if (response.statusCode == 200) {
+      final List<dynamic> jsonList = jsonDecode(response.body);
+      return jsonList.map((p) => p['id'] as int).toList();
+    } else if (response.statusCode == 404) {
+      return [];
+    } else {
+      throw Exception('Failed to fetch disliked posts: ${response.statusCode}');
+    }
+  }
 }

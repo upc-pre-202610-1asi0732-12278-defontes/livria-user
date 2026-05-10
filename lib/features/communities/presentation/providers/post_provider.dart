@@ -42,6 +42,25 @@ class PostProvider extends ChangeNotifier {
     }
   }
 
+  //Cargar reacciones
+  Future<void> loadReactions(int postId, int userId) async {
+    try {
+      final results = await Future.wait([
+        postRepository.fetchReactionCounts(postId),
+        postRepository.fetchUserReactionStatus(postId, userId),
+      ]);
+      final counts = results[0] as Map<String, int>;
+      final status = results[1] as int;
+
+      _likesCount[postId] = counts['likes'] ?? 0;
+      _dislikesCount[postId] = counts['dislikes'] ?? 0;
+      _userReaction[postId] = status;
+      notifyListeners();
+    } catch (e) {
+      debugPrint('Error loading reactions: $e');
+    }
+  }
+
   // Crear un nuevo post
   Future<bool> addPost({
     required int communityId,
@@ -108,7 +127,7 @@ class PostProvider extends ChangeNotifier {
   final Map<int, List<Comment>> _commentsByPost = {};
   final Map<int, bool> _loadingCommentsByPost = {};
 
-// GETTERS
+  // GETTERS
   List<Comment> commentsForPost(int postId) => _commentsByPost[postId] ?? [];
   bool isLoadingCommentsForPost(int postId) => _loadingCommentsByPost[postId] ?? false;
 
@@ -143,6 +162,59 @@ class PostProvider extends ChangeNotifier {
     } catch (e) {
       debugPrint('Error añadiendo comment: $e');
       return false;
+    }
+  }
+
+  // ---------- LIKES Y DISLIKES ----------------------
+  // ESTADO de reacciones
+  final Map<int, int> _likesCount = {};
+  final Map<int, int> _dislikesCount = {};
+  final Map<int, int> _userReaction = {}; // 0=none, 1=like, 2=dislike
+
+  // GETTERS
+  int likesForPost(int postId) => _likesCount[postId] ?? 0;
+  int dislikesForPost(int postId) => _dislikesCount[postId] ?? 0;
+  int userReactionForPost(int postId) => _userReaction[postId] ?? 0;
+
+
+  Future<void> reactToPost(int postId, int userId, int type) async {
+    try {
+      await postRepository.reactToPost(postId, userId, type);
+      debugPrint('✅ reactToPost OK');
+
+      final newStatus = await postRepository.fetchUserReactionStatus(postId, userId);
+      debugPrint('✅ fetchUserReactionStatus: $newStatus');
+
+      final counts = await postRepository.fetchReactionCounts(postId);
+      debugPrint('✅ fetchReactionCounts: $counts');
+
+      _userReaction[postId] = newStatus;
+      _likesCount[postId] = counts['likes'] ?? 0;
+      _dislikesCount[postId] = counts['dislikes'] ?? 0;
+      notifyListeners();
+    } catch (e) {
+      debugPrint('❌ Error reacting to post: $e');
+    }
+  }
+
+  Future<void> loadUserReactions(int userId) async {
+    try {
+      final results = await Future.wait([
+        postRepository.fetchLikedPostIds(userId),
+        postRepository.fetchDislikedPostIds(userId),
+      ]);
+      final likedIds = results[0] as List<int>;
+      final dislikedIds = results[1] as List<int>;
+
+      for (final id in likedIds) {
+        _userReaction[id] = 1;
+      }
+      for (final id in dislikedIds) {
+        _userReaction[id] = 2;
+      }
+      notifyListeners();
+    } catch (e) {
+      debugPrint('Error loading user reactions: $e');
     }
   }
 }

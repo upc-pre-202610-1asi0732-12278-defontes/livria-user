@@ -84,4 +84,24 @@ class PostRepositoryApi implements PostRepository {
     final updatedPost = await _dataSource.updatePost(postId, content, img);
     return updatedPost;
   }
+
+  @override
+  Future<Map<String, int>> fetchReactionCounts(int postId) =>
+      _dataSource.fetchReactionCounts(postId);
+
+  @override
+  Future<int> fetchUserReactionStatus(int postId, int userId) =>
+      _dataSource.fetchUserReactionStatus(postId, userId);
+
+  @override
+  Future<void> reactToPost(int postId, int userId, int type) =>
+      _dataSource.reactToPost(postId, userId, type);
+
+  @override
+  Future<List<int>> fetchLikedPostIds(int userId) =>
+      _dataSource.fetchLikedPostIds(userId);
+
+  @override
+  Future<List<int>> fetchDislikedPostIds(int userId) =>
+      _dataSource.fetchDislikedPostIds(userId);
 }
