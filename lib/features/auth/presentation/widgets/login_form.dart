@@ -17,6 +17,7 @@ class _LoginFormState extends State<LoginForm> {
   final TextEditingController _passwordController = TextEditingController();
   bool _isLoading = false;
   String? _errorMessage;
+  bool _obscurePassword = true;
 
   @override
   void dispose() {
@@ -167,7 +168,7 @@ class _LoginFormState extends State<LoginForm> {
               // Contraseña
               TextFormField(
                 controller: _passwordController,
-                obscureText: true,
+                obscureText: _obscurePassword,
                 decoration: InputDecoration(
                   labelText: 'Password',
                   filled: true,
@@ -177,6 +178,13 @@ class _LoginFormState extends State<LoginForm> {
                     borderSide: BorderSide.none,
                   ),
                   prefixIcon: const Icon(Icons.lock, color: AppColors.darkBlue),
+                  suffixIcon: IconButton(
+                    icon: Icon(
+                      _obscurePassword ? Icons.visibility_off_outlined : Icons.visibility_outlined,
+                      color: AppColors.darkBlue.withOpacity(0.5),
+                    ),
+                    onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
+                  ),
                 ),
                 validator: (v) => (v?.isEmpty ?? true) ? 'Enter your password' : null,
               ),
