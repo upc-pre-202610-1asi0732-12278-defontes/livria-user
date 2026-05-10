@@ -253,11 +253,53 @@ class ShippingInfoPage extends StatelessWidget {
         const SizedBox(height: 16),
 
         _buildLabel("City"),
-        _buildInput(controller: provider.cityController),
+        Container(
+          decoration: BoxDecoration(
+            boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 5, offset: const Offset(0, 2))],
+          ),
+          child: TextFormField(
+            initialValue: 'Lima Metropolitana',
+            enabled: false,
+            style: const TextStyle(color: AppColors.darkBlue, fontWeight: FontWeight.w500),
+            decoration: InputDecoration(
+              filled: true,
+              fillColor: AppColors.lightGrey,
+              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+              border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide.none),
+            ),
+          ),
+        ),
         const SizedBox(height: 16),
 
         _buildLabel("District"),
-        _buildInput(controller: provider.districtController),
+        Container(
+          decoration: BoxDecoration(
+            color: AppColors.white,
+            borderRadius: BorderRadius.circular(8),
+            boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 5, offset: const Offset(0, 2))],
+          ),
+          child: DropdownButtonFormField<String>(
+            value: provider.districtController.text.isEmpty ? null : provider.districtController.text,
+            decoration: InputDecoration(
+              filled: true,
+              fillColor: AppColors.white,
+              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+              border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide.none),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+                borderSide: const BorderSide(color: AppColors.primaryOrange, width: 1.5),
+              ),
+            ),
+            hint: const Text('Select district'),
+            items: _limaDistricts.map((district) => DropdownMenuItem(
+              value: district,
+              child: Text(district),
+            )).toList(),
+            onChanged: (value) {
+              if (value != null) provider.districtController.text = value;
+            },
+          ),
+        ),
         const SizedBox(height: 16),
 
         _buildLabel("Reference (Optional)"),
@@ -301,3 +343,16 @@ class ShippingInfoPage extends StatelessWidget {
     );
   }
 }
+
+const List<String> _limaDistricts = [
+  'Ancón', 'Ate', 'Barranco', 'Breña', 'Carabayllo', 'Chaclacayo',
+  'Chorrillos', 'Cieneguilla', 'Comas', 'El Agustino', 'Independencia',
+  'Jesús María', 'La Molina', 'La Victoria', 'Lima', 'Lince',
+  'Los Olivos', 'Lurigancho', 'Lurín', 'Magdalena del Mar', 'Miraflores',
+  'Pachacámac', 'Pucusana', 'Pueblo Libre', 'Puente Piedra', 'Punta Hermosa',
+  'Punta Negra', 'Rímac', 'San Bartolo', 'San Borja', 'San Isidro',
+  'San Juan de Lurigancho', 'San Juan de Miraflores', 'San Luis',
+  'San Martín de Porres', 'San Miguel', 'Santa Anita', 'Santa María del Mar',
+  'Santa Rosa', 'Santiago de Surco', 'Surquillo', 'Villa El Salvador',
+  'Villa María del Triunfo',
+];
