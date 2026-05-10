@@ -3,13 +3,12 @@
 // /api/v1/communities/ + id
 // /api/v1/posts/community/ + communityId
 
-import 'post.dart';
-
 class Community {
   final int id;
   final String name;
   final String description;
   final int type;
+  final int ownerId;
   final String image;
   final String banner;
 
@@ -18,6 +17,7 @@ class Community {
     required this.name,
     required this.description,
     required this.type,
+    required this.ownerId,
     required this.image,
     required this.banner,
   });
@@ -29,8 +29,20 @@ class Community {
       name: json['name'],
       description: json['description'],
       type: json['type'],
+      ownerId: json['ownerId'],
       image: json['image'],
       banner: json['banner'],
     );
   }
 }
+
+/* ---- TYPES ----
+  literature(1, 'LITERATURE'),
+  nonFiction(2, 'NON-FICTION'),
+  fiction(3, 'FICTION'),
+  mangasComics(4, 'MANGAS & COMICS'),
+  juvenile(5, 'JUVENILE'),
+  children(6, 'CHILDREN'),
+  ebooksAudiobooks(7, 'EBOOKS & AUDIOBOOKS'),
+  general(8, 'GENERAL');
+*/

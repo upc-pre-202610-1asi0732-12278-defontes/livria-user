@@ -60,12 +60,14 @@ class PostRepositoryImpl implements PostRepository {
   @override
   Future<Post> createPost({
     required int communityId,
+    required int userId,
     required String username,
     required String content,
     String? img,
   }) async {
     final http.Response response = await _dataSource.createPost(
       communityId: communityId,
+      userId: userId,
       username: username,
       content: content,
       img: img,
@@ -76,5 +78,16 @@ class PostRepositoryImpl implements PostRepository {
     } else {
       throw Exception('HTTP ${response.statusCode}: Fallo al crear el post. Cuerpo: ${response.body}');
     }
+  }
+
+  @override
+  Future<void> deletePost(int postId) async {
+    await _dataSource.deletePost(postId);
+  }
+
+  @override
+  Future<Post> updatePost(int postId, String content, String? img) async {
+    final updatedPost = await _dataSource.updatePost(postId, content, img);
+    return updatedPost;
   }
 }

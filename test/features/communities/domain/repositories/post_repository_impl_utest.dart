@@ -109,6 +109,7 @@ void main() {
       test('debe devolver Post si el status code es 201', () async {
         when(mockDataSource.createPost(
           communityId: tCommunityId,
+          userId: 1,
           username: tUsername,
           content: tContent,
           img: anyNamed('img'),
@@ -116,12 +117,14 @@ void main() {
 
         final result = await repository.createPost(
           communityId: tCommunityId,
+          userId: 1,
           username: tUsername,
           content: tContent,
         );
 
         verify(mockDataSource.createPost(
           communityId: tCommunityId,
+          userId: 1,
           username: tUsername,
           content: tContent,
           img: anyNamed('img'),
@@ -135,6 +138,7 @@ void main() {
       test('debe lanzar Exception si el status code NO es 201 o 200', () async {
         when(mockDataSource.createPost(
           communityId: tCommunityId,
+          userId: 1,
           username: tUsername,
           content: tContent,
           img: anyNamed('img'),
@@ -143,6 +147,7 @@ void main() {
         expect(
               () => repository.createPost(
             communityId: tCommunityId,
+            userId: 1,
             username: tUsername,
             content: tContent,
           ),
@@ -151,6 +156,7 @@ void main() {
 
         verify(mockDataSource.createPost(
           communityId: tCommunityId,
+          userId: 1,
           username: tUsername,
           content: tContent,
           img: anyNamed('img'),

@@ -18,6 +18,7 @@ void main() {
       name: 'Test Club',
       description: 'Test Desc',
       type: 1,
+      ownerId: 3,
       image: '',
       banner: '',
     ),

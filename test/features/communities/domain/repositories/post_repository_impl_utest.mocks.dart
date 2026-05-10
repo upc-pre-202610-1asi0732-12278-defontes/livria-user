@@ -69,6 +69,7 @@ class MockPostRemoteDataSource extends _i1.Mock
   @override
   _i4.Future<_i2.Response> createPost({
     required int? communityId,
+    required int? userId,
     required String? username,
     required String? content,
     String? img,

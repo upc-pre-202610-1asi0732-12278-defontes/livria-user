@@ -7,6 +7,9 @@ abstract class ProfileRepository {
   // Actualizar perfil
   Future<UserProfile> updateUserProfile(int userId, UserProfile updatedProfile);
 
+  // Eliminar comunidad propia
+  Future<void> deleteCommunity(int communityId, int ownerId);
+
   // Borrar cuenta
   Future<void> deleteAccount(int userId);
 

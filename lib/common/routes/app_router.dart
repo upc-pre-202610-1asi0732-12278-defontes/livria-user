@@ -16,17 +16,12 @@ import 'package:livria_user/features/book/presentation/pages/category_books_page
 import 'package:livria_user/features/communities/presentation/pages/communities_page.dart';
 import 'package:livria_user/features/profile/presentation/pages/profile_page.dart';
 
-import '../../features/book/application/services/book_service.dart';
-import '../../features/book/domain/entities/book.dart';
-import '../../features/book/domain/repositories/book_repository_impl.dart';
-import '../../features/book/infrastructure/datasource/book_remote_datasource.dart';
 import '../../features/book/presentation/widgets/book_wraper.dart';
 import '../../features/cart/presentation/pages/cart_page.dart';
 import '../../features/notifications/presentation/pages/notifications_page.dart';
 import '../../features/orders/presentation/pages/payment_page.dart';
 import '../../features/orders/presentation/pages/recipient_info_page.dart';
 import '../../features/orders/presentation/pages/shipping_info_page.dart';
-import 'package:livria_user/features/auth/infrastructure/datasource/auth_local_datasource.dart';
 import 'package:livria_user/features/auth/infrastructure/datasource/auth_remote_datasource.dart';
 
 import '../../features/profile/presentation/pages/subscription_payment_page.dart';

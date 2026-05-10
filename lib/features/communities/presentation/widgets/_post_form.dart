@@ -18,7 +18,7 @@ class PostForm extends StatelessWidget {
   final ShowSnackbar showSnackbar;
 
   const PostForm({
-    Key? key,
+    super.key,
     required this.isUserLoading,
     required this.username,
     required this.isPosting,
@@ -29,7 +29,7 @@ class PostForm extends StatelessWidget {
     required this.onPost,
     required this.onCameraPressed,
     required this.showSnackbar,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

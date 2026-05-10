@@ -171,6 +171,7 @@ class _CommunityDetailPageState extends State<CommunityDetailPage> {
   }
 
   Future<void> _handlePostCreation() async {
+    final userId = await widget.authLocalDataSource.getUserId();
     final content = _contentController.text.trim();
 
     if (_username == null) {
@@ -200,6 +201,7 @@ class _CommunityDetailPageState extends State<CommunityDetailPage> {
 
       final newPost = await _postRepository.createPost(
         communityId: widget.community.id,
+        userId: _currentUserId!,
         username: _username!,
         content: content,
         img: imageBase64,
@@ -325,7 +327,9 @@ class _CommunityDetailPageState extends State<CommunityDetailPage> {
               onJoinPressed: _isTogglingJoin ? () {} : _handleJoinPressed,
               isJoined: _isJoined,
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: 20),
+            const Divider(height: 1, thickness: 2, color: AppColors.softTeal),
+            SizedBox(height: 20),
 
             // FORMULARIO DE POST
             PostForm(
@@ -341,7 +345,9 @@ class _CommunityDetailPageState extends State<CommunityDetailPage> {
               showSnackbar: _showSnackbar,
             ),
 
-            const SizedBox(height: 24),
+            SizedBox(height: 20),
+            const Divider(height: 1, thickness: 2, color: AppColors.lightGrey),
+            SizedBox(height: 20),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: Text(
@@ -352,13 +358,10 @@ class _CommunityDetailPageState extends State<CommunityDetailPage> {
                 ),
               ),
             ),
-            const SizedBox(height: 12),
+            SizedBox(height: 20),
 
             PostList(
-              isLoadingPosts: _isLoadingPosts,
-              posts: _posts,
-              currentUsername: _username,
-              currentUserIconUrl: _userIconUrl,
+              communityId: widget.community.id
             ),
           ],
         ),

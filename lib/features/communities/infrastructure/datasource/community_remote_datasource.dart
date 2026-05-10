@@ -7,6 +7,7 @@ import '../../../auth/infrastructure/datasource/auth_local_datasource.dart';
 class CommunityRemoteDataSource {
   static const String _base = Env.apiBase;
   static const String _communitiesPath = '/api/v1/communities';
+  static const String _userComPath = '/api/v1/users';
 
   final AuthLocalDataSource _authDs;
   final http.Client _client;
@@ -34,6 +35,16 @@ class CommunityRemoteDataSource {
   Future<http.Response> fetchCommunityList(int offset, int limit) async {
     final uri = Uri.parse('$_base$_communitiesPath?offset=$offset&limit=$limit');
     final headers = await _getAuthenticatedHeaders(); // Obtenemos el token
+
+    return _client.get(
+      uri,
+      headers: headers,
+    );
+  }
+
+  Future<http.Response> fetchCommunitiesByUser({required int userId}) async {
+    final uri = Uri.parse('$_base$_userComPath/$userId/activity/owned-communities');
+    final headers = await _getAuthenticatedHeaders();
 
     return _client.get(
       uri,

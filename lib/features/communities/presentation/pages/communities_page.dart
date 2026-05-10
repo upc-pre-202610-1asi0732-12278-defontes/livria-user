@@ -194,6 +194,8 @@ class _CommunitiesPageState extends State<CommunitiesPage> {
               MaterialPageRoute(
                 builder: (context) => CreateCommunityPage(
                   createCommunityUseCase: _createCommunityUseCase,
+                  authLocalDataSource: widget.authLocalDataSource,
+                  authRemoteDataSource: widget.authRemoteDataSource,
                 ),
               ),
             );

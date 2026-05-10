@@ -9,7 +9,7 @@ class HorizontalBookCard extends StatelessWidget {
 
   static const double standardHeight = 120.0;
 
-  const HorizontalBookCard(this.b, this.t);
+  const HorizontalBookCard(this.b, this.t, {super.key});
 
   @override
   Widget build(BuildContext context) {

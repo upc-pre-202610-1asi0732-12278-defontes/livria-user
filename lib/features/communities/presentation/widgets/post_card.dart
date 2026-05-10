@@ -10,11 +10,17 @@ import 'package:livria_user/features/auth/infrastructure/datasource/auth_remote_
 class PostCard extends StatefulWidget {
   final Post post;
   final String? userIconUrl;
+  final bool isOwner;
+  final VoidCallback? onDelete;
+  final VoidCallback? onEdit;
 
   const PostCard({
     super.key,
     required this.post,
     this.userIconUrl,
+    this.isOwner = false,
+    this.onDelete,
+    this.onEdit,
   });
 
   @override
@@ -164,6 +170,22 @@ class _PostCardState extends State<PostCard> {
                     ),
                   ],
                 ),
+                if (widget.isOwner) ...[
+                  const Spacer(),
+                  IconButton(
+                    icon: const Icon(Icons.edit_outlined, size: 20, color: AppColors.darkBlue),
+                    onPressed: widget.onEdit,
+                    constraints: const BoxConstraints(),
+                    padding: EdgeInsets.zero,
+                  ),
+                  const SizedBox(width: 8),
+                  IconButton(
+                    icon: const Icon(Icons.delete_outline, size: 20, color: Colors.redAccent),
+                    onPressed: widget.onDelete,
+                    constraints: const BoxConstraints(),
+                    padding: EdgeInsets.zero,
+                  ),
+                ],
               ],
             ),
             const SizedBox(height: 12),
@@ -171,13 +193,13 @@ class _PostCardState extends State<PostCard> {
               widget.post.content,
               style: Theme.of(context).textTheme.bodyLarge!.copyWith(color: AppColors.black),
             ),
-            if (widget.post.img != null && widget.post.img!.isNotEmpty && widget.post.img != "string") ...[
+            if (widget.post.img.isNotEmpty && widget.post.img != "string") ...[
               const SizedBox(height: 12),
               ClipRRect(
                 borderRadius: BorderRadius.circular(8.0),
                 child: Builder(
                   builder: (context) {
-                    final imageStr = widget.post.img!;
+                    final imageStr = widget.post.img;
                     if (imageStr.startsWith('data:image') || (imageStr.length > 100 && !imageStr.startsWith('http'))) {
                       try {
                         final base64String = imageStr.contains(',') ? imageStr.split(',').last : imageStr;

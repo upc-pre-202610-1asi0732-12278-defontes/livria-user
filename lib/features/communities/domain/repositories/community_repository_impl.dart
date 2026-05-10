@@ -23,6 +23,18 @@ class CommunityRepositoryImpl implements CommunityRepository {
   }
 
   @override
+  Future<List<Community>> getCommunitiesByUser(int userId) async {
+    final http.Response res = await _ds.fetchCommunitiesByUser(userId: userId);
+
+    if (res.statusCode == 200 || res.statusCode == 201) {
+      final List<dynamic> communities = jsonDecode(res.body);
+      return communities.map((jsonItem) =>
+          Community.fromJson(jsonItem as Map<String, dynamic>)).toList();
+    }
+    throw Exception('HTTP ${res.statusCode}: Fallo al unirse a la comunidad. Mensaje: ${res.body}');
+  }
+
+  @override
   Future<List<Community>> searchCommunities(String query) async {
     const int maxLimit = 1000;
     final normalizedQuery = query.toLowerCase().trim();
@@ -43,6 +55,7 @@ class CommunityRepositoryImpl implements CommunityRepository {
     required String name,
     required String description,
     required int type,
+    required int ownerId,
     required String image,
     required String banner,
   }) async {
@@ -50,6 +63,7 @@ class CommunityRepositoryImpl implements CommunityRepository {
       "name": name,
       "description": description,
       "type": type,
+      "ownerId": ownerId,
       "image": image,
       "banner": banner,
     };

@@ -11,6 +11,7 @@ class CreateCommunityUseCase {
     required String name,
     required String description,
     required int type,
+    required int ownerId,
     required String image,
     required String banner,
   }) async {
@@ -18,6 +19,7 @@ class CreateCommunityUseCase {
       name: name,
       description: description,
       type: type,
+      ownerId: ownerId,
       image: image,
       banner: banner,
     );

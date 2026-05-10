@@ -9,6 +9,7 @@ import '../../domain/entities/user_profile.dart';
 class ProfileRemoteDataSource {
   static const String _base = Env.apiBase;
   static const String _userPath = '/api/v1/userclients';
+  static const String _communityPath = '/api/v1/communities';
 
   final http.Client _client;
   ProfileRemoteDataSource({http.Client? client}) : _client = client ?? http.Client();
@@ -57,6 +58,21 @@ class ProfileRemoteDataSource {
     } else {
       throw Exception('Failed to update profile: ${response.body}');
     }
+  }
+
+  // DELETE: Borrar comunidad del usuario
+  Future<void> deleteCommunity(int communityId, int ownerId) async {
+    final uri = Uri.parse('$_base$_communityPath/$communityId/$ownerId');
+    final headers = await _getHeaders();
+
+    debugPrint("🔴 [COMMUNITY DELETE] Deleting community: $uri");
+
+    final response = await _client.delete(uri, headers: headers);
+
+    if (response.statusCode != 200 && response.statusCode != 204) {
+      throw Exception('Failed to delete community: ${response.body}');
+    }
+
   }
 
   // DELETE: Borrar cuenta

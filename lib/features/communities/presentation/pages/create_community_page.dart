@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:livria_user/common/theme/app_colors.dart';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
+import 'package:livria_user/features/auth/infrastructure/datasource/auth_local_datasource.dart';
+import 'package:livria_user/features/auth/infrastructure/datasource/auth_remote_datasource.dart';
 import '../../domain/entities/community.dart';
 import '../../domain/usecases/create_community_usecase.dart';
 import 'dart:convert';
@@ -23,11 +25,14 @@ enum CommunityType {
 
 class CreateCommunityPage extends StatefulWidget {
   final CreateCommunityUseCase createCommunityUseCase;
+  final AuthLocalDataSource authLocalDataSource;
+  final AuthRemoteDataSource authRemoteDataSource;
 
   const CreateCommunityPage({
-    Key? key,
+    super.key,
     required this.createCommunityUseCase,
-  }) : super(key: key);
+    required this.authLocalDataSource, required this.authRemoteDataSource
+  });
 
   @override
   State<CreateCommunityPage> createState() => _CreateCommunityPageState();
@@ -43,12 +48,14 @@ class _CreateCommunityPageState extends State<CreateCommunityPage> {
   final TextEditingController _bannerController = TextEditingController(); // URL del banner
 
   CommunityType? _selectedType = CommunityType.literature; // Valor inicial
+  int _ownerId = 0;
 
   // Estado para los archivos de imagen seleccionados (Cambiado a XFile?)
   XFile? _selectedIconFile;
   XFile? _selectedBannerFile;
 
   bool _isLoading = false;
+  bool _isUserLoading = true;
 
   @override
   void dispose() {
@@ -57,6 +64,37 @@ class _CreateCommunityPageState extends State<CreateCommunityPage> {
     _imageController.dispose();
     _bannerController.dispose();
     super.dispose();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserProfile();
+
+  }
+
+  Future<void> _loadUserProfile() async {
+    try {
+      final userId = await widget.authLocalDataSource.getUserId();
+      final token = await widget.authLocalDataSource.getToken();
+      if (userId != null && token != null) {
+        _ownerId = userId;
+        print('Owner ID: $_ownerId');
+      } else {
+        if (mounted) {
+          setState(() {
+            _isUserLoading = false;
+          });
+        }
+      }
+    } catch (e) {
+      print('Error al cargar perfil de usuario: $e');
+      if (mounted) {
+        setState(() {
+          _isUserLoading = false;
+        });
+      }
+    }
   }
 
   void _showSnackbar(String message, {required Color color}) {
@@ -118,6 +156,10 @@ class _CreateCommunityPageState extends State<CreateCommunityPage> {
       return;
     }
 
+    if (_ownerId == 0) {
+      _showSnackbar("We can't recognize you! Totally our fault :( Try again later please!", color: AppColors.secondaryYellow);
+    }
+
     // 2. Comprobar que se ha proporcionado **alguna** imagen/URL para ícono y banner.
     if (_imageController.text.isEmpty && _selectedIconFile == null) {
       _showSnackbar('You must provide a URL or select an image for the Icon.', color: AppColors.errorRed);
@@ -153,12 +195,13 @@ class _CreateCommunityPageState extends State<CreateCommunityPage> {
         name: _nameController.text.trim(),
         description: _descriptionController.text.trim(),
         type: _selectedType!.id,
+        ownerId: _ownerId,
         image: finalImageUrl,
         banner: finalBannerUrl,
       );
 
       _showSnackbar(
-        'Community "${newCommunity.name}" successfully created with ID ${newCommunity.id}!',
+        'Community "${newCommunity.name}" successfully created!',
         color: AppColors.darkBlue,
       );
 
@@ -478,7 +521,7 @@ class _CreateCommunityPageState extends State<CreateCommunityPage> {
           isDense: true,
           contentPadding: EdgeInsets.zero,
         ),
-        value: _selectedType,
+        initialValue: _selectedType,
         items: CommunityType.values.map((CommunityType type) {
           return DropdownMenuItem<CommunityType>(
             value: type,

@@ -2,6 +2,8 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:livria_user/features/communities/domain/entities/community.dart';
+import 'package:livria_user/features/communities/domain/usecases/get_communities_usecase.dart';
 import '../../../auth/infrastructure/datasource/auth_local_datasource.dart';
 import '../../../orders/domain/entities/order.dart';
 import '../../../orders/domain/usecases/get_user_orders_usecase.dart';
@@ -13,15 +15,18 @@ class ProfileProvider extends ChangeNotifier {
   // Dependencias
   final ProfileRepository profileRepository;
   final GetUserOrdersUseCase getUserOrdersUseCase;
+  final GetCommunitiesUseCase getCommunitiesUseCase;
 
   ProfileProvider({
     required this.profileRepository,
     required this.getUserOrdersUseCase,
+    required this.getCommunitiesUseCase,
   });
 
   // ESTADO
   UserProfile? _user;
   List<Order> _orders = [];
+  List<Community> _communities = [];
   bool _isLoading = true;
   int _selectedTab = 0; // 0: My Orders, 1: Edit Bio
 
@@ -34,6 +39,7 @@ class ProfileProvider extends ChangeNotifier {
   // GETTERS
   UserProfile? get user => _user;
   List<Order> get orders => _orders;
+  List<Community> get communities => _communities;
   bool get isLoading => _isLoading;
   int get selectedTab => _selectedTab;
 
@@ -81,10 +87,12 @@ class ProfileProvider extends ChangeNotifier {
       final results = await Future.wait([
         profileRepository.getUserProfile(userId),
         getUserOrdersUseCase(userId),
+        getCommunitiesUseCase(userId)
       ]);
 
       _user = results[0] as UserProfile;
       _orders = results[1] as List<Order>;
+      _communities = results[2] as List<Community>;
 
       _fillControllers();
 
@@ -147,6 +155,35 @@ class ProfileProvider extends ChangeNotifier {
       return false;
     }
   }
+
+  Future<bool> removeCommunity(BuildContext context, int communityId) async {
+    if (_user == null) return false;
+
+    try {
+      await profileRepository.deleteCommunity(communityId, _user!.id);
+      _communities.removeWhere((item) => item.id == communityId);
+      notifyListeners();
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Community deleted successfully"),
+          backgroundColor: Colors.green,
+        ),
+      );
+
+      return true;
+    } catch (e) {
+      debugPrint("Error deleting community: $e");
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+            content: Text("Error deleting community: $e"),
+            backgroundColor: Colors.red
+        ),
+      );
+      return false;
+    }
+  }
+
 
   Future<bool> deleteAccount(BuildContext context) async {
     if (_user == null) return false;

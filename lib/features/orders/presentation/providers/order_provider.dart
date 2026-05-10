@@ -39,7 +39,7 @@ class OrderProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  // --- MÉTODO PRINCIPAL: SUBMIT CON EVIDENCIA ---
+  // --- PRINCIPAL METHOD: SUBMIT CON EVIDENCIA ---
 
   Future<bool> submitOrderWithEvidence(BuildContext context, File evidence, double total) async {
     _isLoading = true;
@@ -47,14 +47,12 @@ class OrderProvider extends ChangeNotifier {
 
     try {
       // 1. SUBIR CAPTURA A CLOUDINARY
-      // Sin esto no hay URL para el correo, así que es crítico.
       final imageUrl = await _paymentService.uploadToCloudinary(evidence);
       if (imageUrl == null) {
         throw Exception("Error al subir la captura de pantalla. Inténtalo de nuevo.");
       }
 
-      // 2. ENVIAR NOTIFICACIÓN POR CORREO (EmailJS - Opción A)
-      // Como pediste, si esto falla, NO se crea la orden en el backend.
+      // 2. ENVIAR NOTIFICACIÓN POR CORREO (EmailJS)
       final emailSent = await _paymentService.sendEmail(
         serviceId: 'service_4t97z5d',
         templateId: 'template_kgn4xci',
@@ -76,7 +74,6 @@ class OrderProvider extends ChangeNotifier {
       }
 
       // 3. CREAR ORDEN EN BACKEND C#
-      // Solo llegamos aquí si el correo se envió correctamente.
       final authDs = AuthLocalDataSource();
       final userId = await authDs.getUserId();
       if (userId == null) throw Exception("Usuario no autenticado");

@@ -10,8 +10,12 @@ abstract class PostRepository {
   /// Crea un nuevo post en una comunidad.
   Future<Post> createPost({
     required int communityId,
+    required int userId,
     required String username,
     required String content,
     String? img,
   });
+
+  Future<void> deletePost(int postId);
+  Future<Post> updatePost(int postId, String content, String? img);
 }

@@ -2,7 +2,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:mockito/annotations.dart';
 
-import 'package:livria_user/features/book/domain/repositories/exclusion_repository.dart';
 import 'package:livria_user/features/book/infrastructure/datasource/exclusion_remote_datasource.dart';
 import 'package:livria_user/features/book/infrastructure/repositories/exclusion_repository_impl.dart';
 

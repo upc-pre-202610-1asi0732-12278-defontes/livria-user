@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:livria_user/common/routes/app_router.dart';
 import 'package:livria_user/features/auth/infrastructure/datasource/auth_remote_datasource.dart';
 import 'package:livria_user/features/auth/infrastructure/model/user_model.dart';
 import 'package:livria_user/features/book/application/services/favorite_service.dart';
@@ -9,7 +8,6 @@ import 'package:livria_user/features/auth/infrastructure/datasource/auth_local_d
 import 'package:http/http.dart' as http;
 import 'package:livria_user/features/book/presentation/widgets/review_card.dart';
 import '../../../../common/theme/app_colors.dart';
-import '../../../auth/infrastructure/datasource/auth_local_datasource.dart';
 import '../../application/services/exclusion_service.dart';
 import '../../application/services/review_service.dart';
 import '../../domain/entities/book.dart';

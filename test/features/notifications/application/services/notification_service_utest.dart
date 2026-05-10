@@ -55,7 +55,7 @@ void main() {
     });
 
     test('hideAllNotifications debe llamar al repositorio', () async {
-      when(mockRepository.hideAllNotifications()).thenAnswer((_) async => null);
+      when(mockRepository.hideAllNotifications()).thenAnswer((_) async {});
 
       await service.hideAllNotifications();
 
