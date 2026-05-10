@@ -5,6 +5,11 @@ import 'package:flutter/material.dart';
 import 'package:livria_user/features/communities/domain/entities/community.dart';
 import 'package:provider/provider.dart';
 import '../../../../common/theme/app_colors.dart';
+import '../../../auth/infrastructure/datasource/auth_local_datasource.dart';
+import '../../../auth/infrastructure/datasource/auth_remote_datasource.dart';
+import '../../../communities/infrastructure/datasource/community_remote_datasource.dart';
+import '../../../communities/infrastructure/datasource/post_remote_datasource.dart';
+import '../../../communities/presentation/pages/community_detail_page.dart';
 import '../providers/profile_provider.dart';
 
 String _getCommunityTypeLabel(int type) {
@@ -126,71 +131,85 @@ class _MyCommunitiesTabState extends State<MyCommunitiesTab> {
       imageContent = _buildPlaceholder(c, borderRadius);
     }
 
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppColors.white,
+    return InkWell(
+        onTap: () => Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (context) => CommunityDetailPage(
+              community: c,
+              authLocalDataSource: AuthLocalDataSource(),
+              authRemoteDataSource: AuthRemoteDataSource(),
+              postRemoteDataSource: PostRemoteDataSource(),
+              communityRemoteDataSource: CommunityRemoteDataSource(),
+            ),
+          ),
+        ),
         borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          )
-        ],
-        border: Border.all(color: AppColors.lightGrey),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          // Portada a la izquierda
-          ClipRRect(
-            borderRadius: BorderRadius.circular(6),
-            child: imageContent,
+        child: Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: AppColors.white,
+            borderRadius: BorderRadius.circular(12),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.05),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
+              )
+            ],
+            border: Border.all(color: AppColors.lightGrey),
           ),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              // Portada a la izquierda
+              ClipRRect(
+                borderRadius: BorderRadius.circular(6),
+                child: imageContent,
+              ),
 
-          const SizedBox(width: 10),
+              const SizedBox(width: 10),
 
-          // Texto a la derecha
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Nombre
-                Text(
-                  c.name,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.darkBlue,
-                  ),
+              // Texto a la derecha
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Nombre
+                    Text(
+                      c.name,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.darkBlue,
+                      ),
+                    ),
+                    // Autor
+                    Text(
+                      _getCommunityTypeLabel(c.type),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        color: AppColors.accentGold,
+                        fontWeight: FontWeight.w400,
+                      ),
+                    ),
+                  ],
                 ),
-                // Autor
-                Text(
-                  _getCommunityTypeLabel(c.type),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    color: AppColors.accentGold,
-                    fontWeight: FontWeight.w400,
-                  ),
-                ),
-              ],
-            ),
-          ),
+              ),
 
-          InkWell(
-            onTap: () => context.read<ProfileProvider>().removeCommunity(context, c.id),
-            child: const Icon(
-              Icons.delete_outline,
-              color: AppColors.primaryOrange,
-              size: 28,
-            ),
+              InkWell(
+                onTap: () => context.read<ProfileProvider>().removeCommunity(context, c.id),
+                child: const Icon(
+                  Icons.delete_outline,
+                  color: AppColors.primaryOrange,
+                  size: 28,
+                ),
+              ),
+            ],
           ),
-        ],
-      ),
+        ),
     );
   }
 }

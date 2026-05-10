@@ -81,7 +81,7 @@ class _PostListState extends State<PostList> {
 
     const String defaultIcon = 'https://cdn-icons-png.flaticon.com/512/3447/3447354.png';
 
-    List<Post> display = posts.reversed.toList();
+    final List<Post> display = posts.reversed.toList();
 
     return ListView.builder(
       shrinkWrap: true,
