@@ -6,6 +6,8 @@ class UserProfile {
   final String icon;
   final String phrase;
   final String subscription;
+  final DateTime? planChangeDate;
+  final bool hasPayed;
 
   const UserProfile({
     required this.id,
@@ -15,6 +17,8 @@ class UserProfile {
     required this.icon,
     required this.phrase,
     required this.subscription,
+    this.planChangeDate,
+    this.hasPayed = false,
   });
 
   factory UserProfile.empty() {
@@ -26,6 +30,7 @@ class UserProfile {
       icon: '',
       phrase: '',
       subscription: 'freeplan',
+      hasPayed: false,
     );
   }
 
@@ -37,11 +42,14 @@ class UserProfile {
       email: map['email'] ?? '',
       icon: map['icon'] ?? '',
       phrase: map['phrase'] ?? '',
-      subscription: map['subscription'] ?? 'Free Plan',
+      subscription: map['subscription'] ?? 'freeplan',
+      planChangeDate: map['planChangeDate'] != null
+          ? DateTime.tryParse(map['planChangeDate'].toString())
+          : null,
+      hasPayed: map['hasPayed'] ?? false,
     );
   }
 
-  // Convertir Objeto Dart a JSON (Para el PUT de editar perfil)
   Map<String, dynamic> toMap() {
     return {
       'display': display,
@@ -59,6 +67,8 @@ class UserProfile {
     String? icon,
     String? phrase,
     String? subscription,
+    DateTime? planChangeDate,
+    bool? hasPayed,
   }) {
     return UserProfile(
       id: id,
@@ -68,6 +78,8 @@ class UserProfile {
       icon: icon ?? this.icon,
       phrase: phrase ?? this.phrase,
       subscription: subscription ?? this.subscription,
+      planChangeDate: planChangeDate ?? this.planChangeDate,
+      hasPayed: hasPayed ?? this.hasPayed,
     );
   }
 }

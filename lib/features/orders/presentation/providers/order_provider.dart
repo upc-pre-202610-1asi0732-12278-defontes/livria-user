@@ -78,13 +78,15 @@ class OrderProvider extends ChangeNotifier {
         templateId: 'template_kgn4xci',
         publicKey: '9sYY-fTEKMm4wPX-k',
         params: {
+          'payment_type': 'ORDER PAYMENT',
+          'intro_text': 'A new order has been placed and requires verification.',
           'full_name': fullRecipientName,
           'email': emailController.text,
           'phone': phoneController.text,
+          'order_details': _isDelivery ? 'Home delivery: ${addressController.text}, ${districtController.text}' : 'Pick up in store',
+          'user_id': '-',
+          'submitted_date': '-',
           'total_amount': _isDelivery ? 'S/ $totalWithShipping' : 'S/ ${total.toStringAsFixed(2)}',
-          'order_details': _isDelivery
-              ? 'Envío a domicilio: ${addressController.text}, ${districtController.text}'
-              : 'Recojo en tienda',
           'my_file': imageUrl,
         },
       );

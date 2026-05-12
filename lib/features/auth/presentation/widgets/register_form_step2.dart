@@ -84,7 +84,7 @@ class _RegisterFormStep2State extends State<RegisterFormStep2> {
   // --- Lógica de Registro Final ---
   void _performRegister() async {
     FocusScope.of(context).unfocus();
-    if (!_formKey.currentState!.validate()) return; // Si el formulario no es válido, no hacer nada
+    if (!_formKey.currentState!.validate()) return;
 
     setState(() {
       _isLoading = true;
@@ -92,30 +92,33 @@ class _RegisterFormStep2State extends State<RegisterFormStep2> {
     });
 
     try {
-      // llamar al UseCase con todos los datos (del Paso 1 y Paso 2)
       await di.registerUseCase(
         email: widget.email,
         password: widget.password,
         username: _usernameController.text.trim(),
         display: _nicknameController.text.trim(),
         phrase: _phraseController.text.trim(),
-        iconPath: _imageFile?.path, // pasamos la ruta de la imagen
+        iconPath: _imageFile?.path,
       );
 
-      if (mounted) {
-        context.go('/home');
-      }
+      if (mounted) context.go('/home');
 
     } catch (e) {
       if (mounted) {
-        setState(() {
-          _errorMessage = 'Error en el registro. $e';
-        });
+        String errorMsg = e.toString();
+        errorMsg = errorMsg.replaceFirst('Exception: ', '');
+
+        // Si contiene "username" o "email", muestra mensaje amigable:
+        if (errorMsg.toLowerCase().contains('username')) {
+          errorMsg = 'That username is already taken. Please choose another.';
+        } else if (errorMsg.toLowerCase().contains('email')) {
+          errorMsg = 'An account with that email already exists.';
+        }
+
+        setState(() => _errorMessage = errorMsg);
       }
     } finally {
-      if (mounted) {
-        setState(() => _isLoading = false);
-      }
+      if (mounted) setState(() => _isLoading = false);
     }
   }
 

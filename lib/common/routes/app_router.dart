@@ -105,7 +105,7 @@ final appRouter = GoRouter(
                 ),
                 GoRoute(
                   path: '/profile/subscription',
-                  builder: (context, state) => const SubscriptionPaymentPage(),
+                  builder: (context, state) => const SubscriptionProofPage(),
                 ),
                 GoRoute(
                     path: '/location',
