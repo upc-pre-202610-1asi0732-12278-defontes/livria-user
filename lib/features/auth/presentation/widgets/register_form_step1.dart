@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:email_validator/email_validator.dart';
 import '../../../../common/theme/app_colors.dart';
 import 'package:url_launcher/url_launcher.dart';
+import '../../infrastructure/registration_availability.dart';
 
 class RegisterFormStep1 extends StatefulWidget {
   const RegisterFormStep1({super.key});
@@ -22,6 +23,7 @@ class _RegisterFormStep1State extends State<RegisterFormStep1> {
 
   // Estado del Checkbox
   bool _termsAccepted = false;
+  bool _isCheckingEmail = false;
 
   @override
   void dispose() {
@@ -31,27 +33,70 @@ class _RegisterFormStep1State extends State<RegisterFormStep1> {
     super.dispose();
   }
 
-  void _onContinue() {
-    // validar formulario (Emails y Contraseñas)
-    if (_formKey.currentState!.validate()) {
-      // validar Checkbox manualmente
-      if (!_termsAccepted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('You must accept the terms and conditions to continue.'),
-            backgroundColor: AppColors.errorRed,
-          ),
-        );
+  Future<void> _onContinue() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    if (!_termsAccepted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('You must accept the terms and conditions to continue.'),
+          backgroundColor: AppColors.errorRed,
+        ),
+      );
+      return;
+    }
+
+    setState(() => _isCheckingEmail = true);
+
+    try {
+      final availability = await getRegistrationAvailability(
+        email: _emailController.text,
+      );
+
+      if (availability.emailAvailable == false) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('An account with that email already exists.'),
+              backgroundColor: AppColors.errorRed,
+            ),
+          );
+        }
         return;
       }
 
-      context.push(
-        '/register_step2',
-        extra: {
-          'email': _emailController.text.trim(),
-          'password': _passwordController.text,
-        },
-      );
+      if (availability.emailAvailable != true) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Could not verify email. Please try again.'),
+              backgroundColor: AppColors.errorRed,
+            ),
+          );
+        }
+        return;
+      }
+
+      if (mounted) {
+        context.push(
+          '/register_step2',
+          extra: {
+            'email': _emailController.text.trim(),
+            'password': _passwordController.text,
+          },
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Could not verify email. Check your connection and try again.'),
+            backgroundColor: AppColors.errorRed,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isCheckingEmail = false);
     }
   }
 
@@ -183,21 +228,30 @@ class _RegisterFormStep1State extends State<RegisterFormStep1> {
                 width: double.infinity,
                 height: 55,
                 child: ElevatedButton(
-                  onPressed: _onContinue,
+                  onPressed: _isCheckingEmail ? null : _onContinue,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.accentGold,
                     foregroundColor: AppColors.darkBlue,
                     elevation: 0,
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                   ),
-                  child: Text(
-                    'CONTINUE',
-                    style: textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.w800,
-                      color: AppColors.darkBlue,
-                      letterSpacing: 1.2,
-                    ),
-                  ),
+                  child: _isCheckingEmail
+                      ? const SizedBox(
+                          width: 22,
+                          height: 22,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: AppColors.darkBlue,
+                          ),
+                        )
+                      : Text(
+                          'CONTINUE',
+                          style: textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.w800,
+                            color: AppColors.darkBlue,
+                            letterSpacing: 1.2,
+                          ),
+                        ),
                 ),
               ),
             ],

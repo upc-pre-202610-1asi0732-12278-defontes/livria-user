@@ -6,6 +6,7 @@ import '../../../../common/theme/app_colors.dart';
 import '../../../../common/utils/app_icons.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../../../../common/di/dependencies.dart' as di;
+import '../../infrastructure/registration_availability.dart';
 
 class RegisterFormStep2 extends StatefulWidget {
   // datos del paso 1
@@ -73,6 +74,37 @@ class _RegisterFormStep2State extends State<RegisterFormStep2> {
     });
 
     try {
+      try {
+        final availability = await getRegistrationAvailability(
+          username: _usernameController.text,
+        );
+
+        if (availability.usernameAvailable == false) {
+          if (mounted) {
+            setState(() {
+              _errorMessage = 'That username is already taken.';
+            });
+          }
+          return;
+        }
+
+        if (availability.usernameAvailable != true) {
+          if (mounted) {
+            setState(() {
+              _errorMessage = 'Could not verify username. Please try again.';
+            });
+          }
+          return;
+        }
+      } catch (_) {
+        if (mounted) {
+          setState(() {
+            _errorMessage = 'Could not verify username. Check your connection and try again.';
+          });
+        }
+        return;
+      }
+
       // llamar al UseCase con todos los datos (del Paso 1 y Paso 2)
       await di.registerUseCase(
         email: widget.email,
