@@ -57,6 +57,8 @@ class CartRemoteDataSource {
     );
 
     debugPrint("🟣 [CART RESPONSE] Status: ${response.statusCode}");
+    debugPrint('🛒 [CART POST] status: ${response.statusCode}');
+    debugPrint('🛒 [CART POST] body: ${response.body}');
 
     if (response.statusCode != 200 && response.statusCode != 201) {
       // Si el token expiró (401) o hay otro error

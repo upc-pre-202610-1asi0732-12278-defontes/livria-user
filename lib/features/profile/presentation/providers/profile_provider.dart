@@ -84,17 +84,22 @@ class ProfileProvider extends ChangeNotifier {
       final userId = await AuthLocalDataSource().getUserId();
       if (userId == null) throw Exception("No user logged in");
 
-      final results = await Future.wait([
-        profileRepository.getUserProfile(userId),
-        getUserOrdersUseCase(userId),
-        getCommunitiesUseCase(userId)
-      ]);
-
-      _user = results[0] as UserProfile;
-      _orders = results[1] as List<Order>;
-      _communities = results[2] as List<Community>;
-
+      _user = await profileRepository.getUserProfile(userId);
       _fillControllers();
+
+      try {
+        _orders = await getUserOrdersUseCase(userId);
+      } catch (e) {
+        debugPrint('Error loading orders: $e');
+        _orders = [];
+      }
+
+      try {
+        _communities = await getCommunitiesUseCase(userId);
+      } catch (e) {
+        debugPrint('Error loading communities: $e');
+        _communities = [];
+      }
 
       _isLoading = false;
     } catch (e) {

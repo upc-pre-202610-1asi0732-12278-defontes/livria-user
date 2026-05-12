@@ -39,6 +39,24 @@ class OrderProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  void notifyDistrictChanged() {
+    notifyListeners();
+  }
+
+  double get getShippingPrice {
+    const zone1 = ['Lince', 'Pueblo Libre', 'Magdalena del Mar', 'San Miguel',
+      'Breña', 'La Victoria', 'Miraflores', 'San Isidro'];
+    const zone2 = ['Barranco', 'Chorrillos', 'San Borja', 'Surquillo',
+      'Santiago de Surco', 'San Luis', 'Rímac', 'Independencia', 'Los Olivos',
+      'San Martín de Porres', 'Ate', 'El Agustino', 'Santa Anita', 'La Molina',
+      'San Juan de Miraflores'];
+
+    final district = districtController.text;
+    if (zone1.contains(district)) return 5.0;
+    if (zone2.contains(district)) return 8.0;
+    return 12.0;
+  }
+
   // --- PRINCIPAL METHOD: SUBMIT CON EVIDENCIA ---
 
   Future<bool> submitOrderWithEvidence(BuildContext context, File evidence, double total) async {
@@ -52,6 +70,8 @@ class OrderProvider extends ChangeNotifier {
         throw Exception("Error al subir la captura de pantalla. Inténtalo de nuevo.");
       }
 
+      final totalWithShipping = total + getShippingPrice;
+
       // 2. ENVIAR NOTIFICACIÓN POR CORREO (EmailJS)
       final emailSent = await _paymentService.sendEmail(
         serviceId: 'service_4t97z5d',
@@ -61,7 +81,7 @@ class OrderProvider extends ChangeNotifier {
           'full_name': fullRecipientName,
           'email': emailController.text,
           'phone': phoneController.text,
-          'total_amount': 'S/ ${total.toStringAsFixed(2)}',
+          'total_amount': _isDelivery ? 'S/ $totalWithShipping' : 'S/ ${total.toStringAsFixed(2)}',
           'order_details': _isDelivery
               ? 'Envío a domicilio: ${addressController.text}, ${districtController.text}'
               : 'Recojo en tienda',
@@ -82,11 +102,16 @@ class OrderProvider extends ChangeNotifier {
       if (_isDelivery) {
         shipping = ShippingDetails(
           address: addressController.text,
-          city: cityController.text,
+          city: cityController.text.isEmpty ? 'Lima Metropolitana' : cityController.text,
           district: districtController.text,
           reference: referenceController.text,
+          price: getShippingPrice,
         );
       }
+
+      debugPrint('!!!!!!!!!!!!!!!!! PLEASE CHECK IF YOUR TOTAL IS GETTING CALCULATED PROPERLY');
+      debugPrint('Your price is: $total');
+      debugPrint('Your shipping price is: $getShippingPrice');
 
       await createOrderUseCase(
         userClientId: userId,

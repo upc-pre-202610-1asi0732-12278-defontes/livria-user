@@ -99,6 +99,8 @@ class _SingleBookViewState extends State<SingleBookView> {
         throw Exception("You must be logged in to add items.");
       }
 
+      debugPrint('🛒 Adding to cart: bookId=${widget.b.id}, qty=$_selectedQuantity, userId=$userId');
+
       await _addToCartUseCase(
           widget.b.id,
           _selectedQuantity,
@@ -118,6 +120,7 @@ class _SingleBookViewState extends State<SingleBookView> {
       Scaffold.of(context).openEndDrawer();
 
     } catch (e) {
+      debugPrint('🔴 Cart error full: $e');
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error: ${e.toString()}'), backgroundColor: AppColors.errorRed),

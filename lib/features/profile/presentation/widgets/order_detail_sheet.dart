@@ -100,7 +100,49 @@ class OrderDetailSheet extends StatelessWidget {
               },
             ),
           ),
-
+          // --- DESGLOSE ---
+          if (order.isDelivery && order.shippingDetails != null) ...[
+            Container(
+              padding: const EdgeInsets.all(24),
+              decoration: const BoxDecoration(
+              border: Border(top: BorderSide(color: AppColors.lightGrey)),
+              ),
+              child: Column(
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text("Books subtotal", style: TextStyle(color: Colors.grey, fontSize: 13)),
+                      Text(
+                        "S/ ${(order.total - order.shippingDetails!.price).toStringAsFixed(2)}",
+                        style: const TextStyle(color: AppColors.darkBlue, fontSize: 13),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 4),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Row(
+                        children: [
+                          const Icon(Icons.local_shipping_outlined, size: 14, color: AppColors.softTeal),
+                          const SizedBox(width: 4),
+                          Text(
+                            "Shipping (${order.shippingDetails!.district})",
+                            style: const TextStyle(color: Colors.grey, fontSize: 13),
+                          ),
+                        ],
+                      ),
+                      Text(
+                        "S/ ${order.shippingDetails!.price.toStringAsFixed(2)}",
+                        style: const TextStyle(color: AppColors.softTeal, fontSize: 13, fontWeight: FontWeight.bold),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ],
           // --- FOOTER CON TOTAL ---
           Container(
             padding: const EdgeInsets.all(24),

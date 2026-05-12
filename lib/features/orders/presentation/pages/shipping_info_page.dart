@@ -150,11 +150,10 @@ class ShippingInfoPage extends StatelessWidget {
                         // VALIDACIÓN
                         if (orderProvider.isDelivery) {
                           if (orderProvider.addressController.text.isEmpty ||
-                              orderProvider.cityController.text.isEmpty ||
                               orderProvider.districtController.text.isEmpty) {
                             ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
-                                  content: Text("Please fill in the address fields"),
+                                  content: Text("Please fill in all fields"),
                                   backgroundColor: AppColors.errorRed,
                                 )
                             );
@@ -248,10 +247,6 @@ class ShippingInfoPage extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildLabel("Address"),
-        _buildInput(controller: provider.addressController),
-        const SizedBox(height: 16),
-
         _buildLabel("City"),
         Container(
           decoration: BoxDecoration(
@@ -296,10 +291,34 @@ class ShippingInfoPage extends StatelessWidget {
               child: Text(district),
             )).toList(),
             onChanged: (value) {
-              if (value != null) provider.districtController.text = value;
+              if (value != null) {
+                provider.districtController.text = value;
+                provider.notifyDistrictChanged();
+              }
             },
           ),
         ),
+        if (provider.districtController.text.isNotEmpty)
+          Padding(
+            padding: const EdgeInsets.only(top: 8),
+            child: Row(
+              children: [
+                const Icon(Icons.local_shipping_outlined, size: 16, color: AppColors.softTeal),
+                const SizedBox(width: 6),
+                Text(
+                  'Shipping cost: S/ ${_getShippingPrice(provider.districtController.text).toStringAsFixed(2)}',
+                  style: const TextStyle(
+                    color: AppColors.darkBlue,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 13,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        const SizedBox(height: 16),
+        _buildLabel("Address"),
+        _buildInput(controller: provider.addressController),
         const SizedBox(height: 16),
 
         _buildLabel("Reference (Optional)"),
@@ -356,3 +375,16 @@ const List<String> _limaDistricts = [
   'Santa Rosa', 'Santiago de Surco', 'Surquillo', 'Villa El Salvador',
   'Villa María del Triunfo',
 ];
+
+double _getShippingPrice(String district) {
+  const zone1 = ['Lince', 'Pueblo Libre', 'Magdalena del Mar', 'San Miguel',
+    'Breña', 'La Victoria', 'Miraflores', 'San Isidro'];
+  const zone2 = ['Barranco', 'Chorrillos', 'San Borja', 'Surquillo',
+    'Santiago de Surco', 'San Luis', 'Rímac', 'Independencia', 'Los Olivos',
+    'San Martín de Porres', 'Ate', 'El Agustino', 'Santa Anita', 'La Molina',
+    'San Juan de Miraflores'];
+
+  if (zone1.contains(district)) return 5.0;
+  if (zone2.contains(district)) return 8.0;
+  return 12.0;
+}
