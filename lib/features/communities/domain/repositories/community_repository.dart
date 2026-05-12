@@ -3,12 +3,14 @@ import '../entities/joined_community.dart';
 
 abstract class CommunityRepository {
   Future<List<Community>> fetchCommunityList(int offset, int limit);
+  Future<List<Community>> getCommunitiesByUser(int userId);
   Future<List<Community>> searchCommunities(String query);
 
   Future<Community> createCommunity({
     required String name,
     required String description,
     required int type,
+    required int ownerId,
     required String image,
     required String banner,
   });

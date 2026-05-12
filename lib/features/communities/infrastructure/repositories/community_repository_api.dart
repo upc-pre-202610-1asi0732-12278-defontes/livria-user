@@ -69,6 +69,17 @@ class CommunityRepositoryApi implements CommunityRepository {
   }
 
   @override
+  Future<List<Community>> getCommunitiesByUser(int userClientId) async {
+    final http.Response response = await _dataSource.fetchCommunitiesByUser(userId: userClientId);
+
+    if (response.statusCode == 200) {
+      return _mapCommunityList(response.body);
+    } else {
+      throw Exception('Failed to load communities. Status: ${response.statusCode}');
+    }
+  }
+
+  @override
   Future<List<Community>> searchCommunities(String query) async {
     final http.Response response = await _dataSource.fetchCommunityList(0, 100);
 
@@ -94,6 +105,7 @@ class CommunityRepositoryApi implements CommunityRepository {
     required String name,
     required String description,
     required int type,
+    required int ownerId,
     required String image,
     required String banner,
   }) async {
@@ -101,6 +113,7 @@ class CommunityRepositoryApi implements CommunityRepository {
       "name": name,
       "description": description,
       "type": type,
+      "ownerId": ownerId,
       "image": image,
       "banner": banner,
     };

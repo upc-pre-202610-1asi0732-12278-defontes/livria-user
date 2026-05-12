@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:livria_user/common/theme/app_colors.dart';
@@ -14,6 +15,7 @@ import '../../domain/repositories/community_repository.dart';
 import '../../domain/repositories/community_repository_impl.dart';
 import '../../infrastructure/datasource/post_remote_datasource.dart';
 import '../../domain/repositories/post_repository_impl.dart';
+import '../providers/post_provider.dart';
 import '../widgets/_community_header.dart';
 import '../widgets/_post_form.dart';
 import '../widgets/_post_list.dart';
@@ -171,6 +173,7 @@ class _CommunityDetailPageState extends State<CommunityDetailPage> {
   }
 
   Future<void> _handlePostCreation() async {
+    final userId = await widget.authLocalDataSource.getUserId();
     final content = _contentController.text.trim();
 
     if (_username == null) {
@@ -183,46 +186,32 @@ class _CommunityDetailPageState extends State<CommunityDetailPage> {
       return;
     }
 
-    if (mounted) {
-      setState(() {
-        _isPosting = true;
-      });
-    }
+    if (mounted) setState(() => _isPosting = true);
 
     try {
       String? imageBase64;
-
       if (_selectedImageFile != null) {
         final bytes = await _selectedImageFile!.readAsBytes();
-        final base64String = base64Encode(bytes);
-        imageBase64 = "data:image/jpeg;base64,$base64String";
+        imageBase64 = "data:image/jpeg;base64,${base64Encode(bytes)}";
       }
 
-      final newPost = await _postRepository.createPost(
+      final success = await context.read<PostProvider>().addPost(
         communityId: widget.community.id,
+        userId: _currentUserId!,
         username: _username!,
         content: content,
         img: imageBase64,
       );
 
-      _contentController.clear();
-      _showSnackbar('Post successfully published!', color: AppColors.primaryOrange);
-
-      if (mounted) {
-        setState(() {
-          _selectedImageFile = null;
-          _posts.insert(0, newPost);
-        });
+      if (success) {
+        _contentController.clear();
+        if (mounted) setState(() => _selectedImageFile = null);
+        _showSnackbar('Post successfully published!', color: AppColors.primaryOrange);
       }
     } catch (e) {
-      _showSnackbar('Error publishing post: ${e.toString()}', color: Colors.red);
-      print('Excepción al crear post: $e');
+      _showSnackbar('Error publishing post: $e', color: Colors.red);
     } finally {
-      if (mounted) {
-        setState(() {
-          _isPosting = false;
-        });
-      }
+      if (mounted) setState(() => _isPosting = false);
     }
   }
 
@@ -325,7 +314,9 @@ class _CommunityDetailPageState extends State<CommunityDetailPage> {
               onJoinPressed: _isTogglingJoin ? () {} : _handleJoinPressed,
               isJoined: _isJoined,
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: 20),
+            const Divider(height: 1, thickness: 2, color: AppColors.softTeal),
+            SizedBox(height: 20),
 
             // FORMULARIO DE POST
             PostForm(
@@ -341,7 +332,9 @@ class _CommunityDetailPageState extends State<CommunityDetailPage> {
               showSnackbar: _showSnackbar,
             ),
 
-            const SizedBox(height: 24),
+            SizedBox(height: 20),
+            const Divider(height: 1, thickness: 2, color: AppColors.lightGrey),
+            SizedBox(height: 20),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: Text(
@@ -352,13 +345,11 @@ class _CommunityDetailPageState extends State<CommunityDetailPage> {
                 ),
               ),
             ),
-            const SizedBox(height: 12),
+            SizedBox(height: 20),
 
             PostList(
-              isLoadingPosts: _isLoadingPosts,
-              posts: _posts,
-              currentUsername: _username,
-              currentUserIconUrl: _userIconUrl,
+              communityId: widget.community.id,
+              currentUserId: _currentUserId,
             ),
           ],
         ),

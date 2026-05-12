@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:email_validator/email_validator.dart';
 import '../../../../common/theme/app_colors.dart';
-import 'package:url_launcher/url_launcher.dart';
 import '../../infrastructure/registration_availability.dart';
 
 class RegisterFormStep1 extends StatefulWidget {
@@ -24,6 +23,8 @@ class _RegisterFormStep1State extends State<RegisterFormStep1> {
   // Estado del Checkbox
   bool _termsAccepted = false;
   bool _isCheckingEmail = false;
+  bool _obscurePassword = true;
+  bool _obscureConfirm = true;
 
   @override
   void dispose() {
@@ -100,18 +101,6 @@ class _RegisterFormStep1State extends State<RegisterFormStep1> {
     }
   }
 
-  // función helper para abrir URLs
-  Future<void> _launchURL(String urlString) async {
-    final Uri url = Uri.parse(urlString);
-    try {
-      if (!await launchUrl(url, mode: LaunchMode.platformDefault)) {
-        throw Exception('No se pudo lanzar $url');
-      }
-    } catch (e) {
-      print("Error abriendo URL: $e");
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
@@ -153,11 +142,26 @@ class _RegisterFormStep1State extends State<RegisterFormStep1> {
               // --- Campo Contraseña ---
               TextFormField(
                 controller: _passwordController,
-                obscureText: true,
-                decoration: _buildInputDecoration('Password'),
+                obscureText: _obscurePassword,
+                decoration: _buildInputDecoration('Password').copyWith(
+                  suffixIcon: IconButton(
+                    icon: Icon(
+                      _obscurePassword ? Icons.visibility_off_outlined : Icons.visibility_outlined,
+                      color: AppColors.darkBlue.withOpacity(0.5),
+                    ),
+                    onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
+                  ),
+                ),
                 validator: (value) {
                   if (value == null || value.isEmpty) return 'Enter a password';
-                  if (value.length < 8) return 'It must have at least 8 characters';
+                  if (value.length < 10) return 'Must be at least 10 characters';
+                  if (value.length > 20) return 'Must be at most 20 characters';
+                  if (!RegExp(r'[A-Z]').hasMatch(value)) return 'Must contain at least 1 uppercase letter';
+                  if (!RegExp(r'[a-z]').hasMatch(value)) return 'Must contain at least 1 lowercase letter';
+                  if (!RegExp(r'[0-9]').hasMatch(value)) return 'Must contain at least 1 number';
+                  if (RegExp(r'[\u{1F000}-\u{1FFFF}]|\u{FE0F}', unicode: true).hasMatch(value)) {
+                    return 'Emojis are not allowed';
+                  }
                   return null;
                 },
               ),
@@ -166,8 +170,16 @@ class _RegisterFormStep1State extends State<RegisterFormStep1> {
               // --- Campo Confirmar Contraseña ---
               TextFormField(
                 controller: _confirmPasswordController,
-                obscureText: true,
-                decoration: _buildInputDecoration('Confirm Password'),
+                obscureText: _obscureConfirm,
+                decoration: _buildInputDecoration('Confirm Password').copyWith(
+                  suffixIcon: IconButton(
+                    icon: Icon(
+                      _obscureConfirm ? Icons.visibility_off_outlined : Icons.visibility_outlined,
+                      color: AppColors.darkBlue.withOpacity(0.5),
+                    ),
+                    onPressed: () => setState(() => _obscureConfirm = !_obscureConfirm),
+                  ),
+                ),
                 validator: (value) {
                   if (value == null || value.isEmpty) return 'Confirm your password';
                   if (value != _passwordController.text) return 'Passwords don\'t match';

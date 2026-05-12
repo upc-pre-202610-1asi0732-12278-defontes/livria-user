@@ -32,7 +32,7 @@ class HomePage extends StatelessWidget {
 class _HomeView extends StatefulWidget {
   final AuthLocalDataSource authLocalDataSource;
   final AuthRemoteDataSource authRemoteDataSource;
-  const _HomeView({super.key, required this.authLocalDataSource, required this.authRemoteDataSource,});
+  const _HomeView({required this.authLocalDataSource, required this.authRemoteDataSource,});
 
   @override
   State<_HomeView> createState() => _HomeViewState();
@@ -219,7 +219,7 @@ class _HomeContent extends StatelessWidget {
             final index = entry.key;
             final genre = entry.value;
             return buildCategoryCarousel(context, genre, allBooks, index);
-          }).toList(),
+          }),
         ],
       ),
     );
@@ -230,7 +230,6 @@ class _Banner extends StatefulWidget {
   final AuthRemoteDataSource authRemoteDataSource;
 
   const _Banner({
-    super.key,
     required this.authLocalDataSource,
     required this.authRemoteDataSource,
   });

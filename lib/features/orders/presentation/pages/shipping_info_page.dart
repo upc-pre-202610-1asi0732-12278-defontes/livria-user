@@ -150,11 +150,10 @@ class ShippingInfoPage extends StatelessWidget {
                         // VALIDACIÓN
                         if (orderProvider.isDelivery) {
                           if (orderProvider.addressController.text.isEmpty ||
-                              orderProvider.cityController.text.isEmpty ||
                               orderProvider.districtController.text.isEmpty) {
                             ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
-                                  content: Text("Please fill in the address fields"),
+                                  content: Text("Please fill in all fields"),
                                   backgroundColor: AppColors.errorRed,
                                 )
                             );
@@ -248,16 +247,78 @@ class ShippingInfoPage extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildLabel("Address"),
-        _buildInput(controller: provider.addressController),
-        const SizedBox(height: 16),
-
         _buildLabel("City"),
-        _buildInput(controller: provider.cityController),
+        Container(
+          decoration: BoxDecoration(
+            boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 5, offset: const Offset(0, 2))],
+          ),
+          child: TextFormField(
+            initialValue: 'Lima Metropolitana',
+            enabled: false,
+            style: const TextStyle(color: AppColors.darkBlue, fontWeight: FontWeight.w500),
+            decoration: InputDecoration(
+              filled: true,
+              fillColor: AppColors.lightGrey,
+              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+              border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide.none),
+            ),
+          ),
+        ),
         const SizedBox(height: 16),
 
         _buildLabel("District"),
-        _buildInput(controller: provider.districtController),
+        Container(
+          decoration: BoxDecoration(
+            color: AppColors.white,
+            borderRadius: BorderRadius.circular(8),
+            boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 5, offset: const Offset(0, 2))],
+          ),
+          child: DropdownButtonFormField<String>(
+            value: provider.districtController.text.isEmpty ? null : provider.districtController.text,
+            decoration: InputDecoration(
+              filled: true,
+              fillColor: AppColors.white,
+              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+              border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide.none),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+                borderSide: const BorderSide(color: AppColors.primaryOrange, width: 1.5),
+              ),
+            ),
+            hint: const Text('Select district'),
+            items: _limaDistricts.map((district) => DropdownMenuItem(
+              value: district,
+              child: Text(district),
+            )).toList(),
+            onChanged: (value) {
+              if (value != null) {
+                provider.districtController.text = value;
+                provider.notifyDistrictChanged();
+              }
+            },
+          ),
+        ),
+        if (provider.districtController.text.isNotEmpty)
+          Padding(
+            padding: const EdgeInsets.only(top: 8),
+            child: Row(
+              children: [
+                const Icon(Icons.local_shipping_outlined, size: 16, color: AppColors.softTeal),
+                const SizedBox(width: 6),
+                Text(
+                  'Shipping cost: S/ ${_getShippingPrice(provider.districtController.text).toStringAsFixed(2)}',
+                  style: const TextStyle(
+                    color: AppColors.darkBlue,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 13,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        const SizedBox(height: 16),
+        _buildLabel("Address"),
+        _buildInput(controller: provider.addressController),
         const SizedBox(height: 16),
 
         _buildLabel("Reference (Optional)"),
@@ -300,4 +361,30 @@ class ShippingInfoPage extends StatelessWidget {
       ),
     );
   }
+}
+
+const List<String> _limaDistricts = [
+  'Ancón', 'Ate', 'Barranco', 'Breña', 'Carabayllo', 'Chaclacayo',
+  'Chorrillos', 'Cieneguilla', 'Comas', 'El Agustino', 'Independencia',
+  'Jesús María', 'La Molina', 'La Victoria', 'Lima', 'Lince',
+  'Los Olivos', 'Lurigancho', 'Lurín', 'Magdalena del Mar', 'Miraflores',
+  'Pachacámac', 'Pucusana', 'Pueblo Libre', 'Puente Piedra', 'Punta Hermosa',
+  'Punta Negra', 'Rímac', 'San Bartolo', 'San Borja', 'San Isidro',
+  'San Juan de Lurigancho', 'San Juan de Miraflores', 'San Luis',
+  'San Martín de Porres', 'San Miguel', 'Santa Anita', 'Santa María del Mar',
+  'Santa Rosa', 'Santiago de Surco', 'Surquillo', 'Villa El Salvador',
+  'Villa María del Triunfo',
+];
+
+double _getShippingPrice(String district) {
+  const zone1 = ['Lince', 'Pueblo Libre', 'Magdalena del Mar', 'San Miguel',
+    'Breña', 'La Victoria', 'Miraflores', 'San Isidro'];
+  const zone2 = ['Barranco', 'Chorrillos', 'San Borja', 'Surquillo',
+    'Santiago de Surco', 'San Luis', 'Rímac', 'Independencia', 'Los Olivos',
+    'San Martín de Porres', 'Ate', 'El Agustino', 'Santa Anita', 'La Molina',
+    'San Juan de Miraflores'];
+
+  if (zone1.contains(district)) return 5.0;
+  if (zone2.contains(district)) return 8.0;
+  return 12.0;
 }

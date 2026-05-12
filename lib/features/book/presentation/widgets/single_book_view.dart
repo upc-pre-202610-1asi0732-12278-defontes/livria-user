@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:livria_user/common/routes/app_router.dart';
 import 'package:livria_user/features/auth/infrastructure/datasource/auth_remote_datasource.dart';
 import 'package:livria_user/features/auth/infrastructure/model/user_model.dart';
 import 'package:livria_user/features/book/application/services/favorite_service.dart';
@@ -9,7 +8,6 @@ import 'package:livria_user/features/auth/infrastructure/datasource/auth_local_d
 import 'package:http/http.dart' as http;
 import 'package:livria_user/features/book/presentation/widgets/review_card.dart';
 import '../../../../common/theme/app_colors.dart';
-import '../../../auth/infrastructure/datasource/auth_local_datasource.dart';
 import '../../application/services/exclusion_service.dart';
 import '../../application/services/review_service.dart';
 import '../../domain/entities/book.dart';
@@ -101,6 +99,8 @@ class _SingleBookViewState extends State<SingleBookView> {
         throw Exception("You must be logged in to add items.");
       }
 
+      debugPrint('🛒 Adding to cart: bookId=${widget.b.id}, qty=$_selectedQuantity, userId=$userId');
+
       await _addToCartUseCase(
           widget.b.id,
           _selectedQuantity,
@@ -120,6 +120,7 @@ class _SingleBookViewState extends State<SingleBookView> {
       Scaffold.of(context).openEndDrawer();
 
     } catch (e) {
+      debugPrint('🔴 Cart error full: $e');
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error: ${e.toString()}'), backgroundColor: AppColors.errorRed),
@@ -675,8 +676,6 @@ class _SingleBookViewState extends State<SingleBookView> {
     final t = Theme.of(context).textTheme;
     final int bookId = widget.b.id;
 
-    final String defaultIcon = 'https://cdn-icons-png.flaticon.com/512/3447/3447354.png';
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -796,12 +795,13 @@ class _SingleBookViewState extends State<SingleBookView> {
               physics: const NeverScrollableScrollPhysics(),
               itemCount: reviews.length,
               itemBuilder: (context, index) {
-                // Regla para el ícono: Si el post pertenece al usuario logueado, usar su ícono. Sino, usar el default.
-                final String iconToUse = (_username != null && reviews[index].username == _username)
-                    ? _userIconUrl ?? defaultIcon
-                    : defaultIcon;
+                // Solo inyectamos el icono si la reseña es del usuario logueado 
+                // para asegurar que se vea su cambio de icono inmediatamente.
+                final String? overrideIcon = (_username != null && reviews[index].username == _username)
+                    ? _userIconUrl
+                    : null;
 
-                return ReviewCard(review: reviews[index], userIconUrl: iconToUse,);
+                return ReviewCard(review: reviews[index], userIconUrl: overrideIcon,);
               },
             );
           },

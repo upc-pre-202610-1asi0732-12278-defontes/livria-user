@@ -2,7 +2,11 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:livria_user/features/communities/domain/entities/community.dart';
+import 'package:livria_user/features/communities/domain/usecases/get_communities_usecase.dart';
 import '../../../auth/infrastructure/datasource/auth_local_datasource.dart';
+import '../../../orders/application/services/payment_service.dart';
 import '../../../orders/domain/entities/order.dart';
 import '../../../orders/domain/usecases/get_user_orders_usecase.dart';
 import '../../domain/entities/user_profile.dart';
@@ -13,15 +17,18 @@ class ProfileProvider extends ChangeNotifier {
   // Dependencias
   final ProfileRepository profileRepository;
   final GetUserOrdersUseCase getUserOrdersUseCase;
+  final GetCommunitiesUseCase getCommunitiesUseCase;
 
   ProfileProvider({
     required this.profileRepository,
     required this.getUserOrdersUseCase,
+    required this.getCommunitiesUseCase,
   });
 
   // ESTADO
   UserProfile? _user;
   List<Order> _orders = [];
+  List<Community> _communities = [];
   bool _isLoading = true;
   int _selectedTab = 0; // 0: My Orders, 1: Edit Bio
 
@@ -34,6 +41,7 @@ class ProfileProvider extends ChangeNotifier {
   // GETTERS
   UserProfile? get user => _user;
   List<Order> get orders => _orders;
+  List<Community> get communities => _communities;
   bool get isLoading => _isLoading;
   int get selectedTab => _selectedTab;
 
@@ -78,15 +86,22 @@ class ProfileProvider extends ChangeNotifier {
       final userId = await AuthLocalDataSource().getUserId();
       if (userId == null) throw Exception("No user logged in");
 
-      final results = await Future.wait([
-        profileRepository.getUserProfile(userId),
-        getUserOrdersUseCase(userId),
-      ]);
-
-      _user = results[0] as UserProfile;
-      _orders = results[1] as List<Order>;
-
+      _user = await profileRepository.getUserProfile(userId);
       _fillControllers();
+
+      try {
+        _orders = await getUserOrdersUseCase(userId);
+      } catch (e) {
+        debugPrint('Error loading orders: $e');
+        _orders = [];
+      }
+
+      try {
+        _communities = await getCommunitiesUseCase(userId);
+      } catch (e) {
+        debugPrint('Error loading communities: $e');
+        _communities = [];
+      }
 
       _isLoading = false;
     } catch (e) {
@@ -148,6 +163,35 @@ class ProfileProvider extends ChangeNotifier {
     }
   }
 
+  Future<bool> removeCommunity(BuildContext context, int communityId) async {
+    if (_user == null) return false;
+
+    try {
+      await profileRepository.deleteCommunity(communityId, _user!.id);
+      _communities.removeWhere((item) => item.id == communityId);
+      notifyListeners();
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Community deleted successfully"),
+          backgroundColor: Colors.green,
+        ),
+      );
+
+      return true;
+    } catch (e) {
+      debugPrint("Error deleting community: $e");
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+            content: Text("Error deleting community: $e"),
+            backgroundColor: Colors.red
+        ),
+      );
+      return false;
+    }
+  }
+
+
   Future<bool> deleteAccount(BuildContext context) async {
     if (_user == null) return false;
 
@@ -185,6 +229,51 @@ class ProfileProvider extends ChangeNotifier {
       _isLoading = false;
       notifyListeners();
       return false; // FALLO
+    }
+  }
+
+  // PAYMENT
+  Future<bool> submitSubscriptionPaymentProof(BuildContext context, File proof) async {
+    _isLoading = true;
+    notifyListeners();
+
+    try {
+      final paymentService = PaymentService();
+
+      final imageUrl = await paymentService.uploadToCloudinary(proof);
+      if (imageUrl == null) throw Exception("Failed to upload image.");
+
+      final emailSent = await paymentService.sendEmail(
+        serviceId: 'service_4t97z5d',
+        templateId: 'template_kgn4xci',
+        publicKey: '9sYY-fTEKMm4wPX-k',
+        params: {
+          'payment_type': 'SUBSCRIPTION PAYMENT',
+          'intro_text': 'A subscription payment proof has been submitted and requires verification.',
+          'full_name': _user?.display ?? '',
+          'email': _user?.email ?? '',
+          'phone': '-',
+          'order_details': 'Community Plan - S/ 19.90/month',
+          'user_id': '${_user?.id ?? ''}',
+          'submitted_date': DateFormat('dd/MM/yyyy HH:mm').format(DateTime.now()),
+          'total_amount': 'S/ 19.90',
+          'my_file': imageUrl,
+        },
+      );
+
+      if (!emailSent) throw Exception("Failed to send email.");
+
+      _isLoading = false;
+      notifyListeners();
+      return true;
+    } catch (e) {
+      debugPrint("Error submitting subscription proof: $e");
+      _isLoading = false;
+      notifyListeners();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Error: $e"), backgroundColor: Colors.red),
+      );
+      return false;
     }
   }
 }

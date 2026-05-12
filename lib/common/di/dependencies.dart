@@ -1,6 +1,4 @@
 import 'package:http/http.dart' as http;
-import 'package:shared_preferences/shared_preferences.dart';
-import '../../features/auth/domain/repositories/auth_repository.dart';
 import '../../features/auth/domain/usecases/login_usecase.dart';
 import '../../features/auth/domain/usecases/register_usecase.dart';
 import '../../features/auth/domain/usecases/check_auth_status_usecase.dart';
@@ -13,6 +11,7 @@ late LoginUseCase loginUseCase;
 late RegisterUseCase registerUseCase;
 late CheckAuthStatusUseCase checkAuthStatusUseCase;
 late LogoutUseCase logoutUseCase;
+late AuthLocalDataSource authLocalDataSource;
 
 Future<void> initializeDependencies() async {
   // Externos
@@ -20,7 +19,7 @@ Future<void> initializeDependencies() async {
 
   // Data Sources
   final authRemoteDataSource = AuthRemoteDataSource(client: httpClient);
-  final authLocalDataSource = AuthLocalDataSource();
+  authLocalDataSource = AuthLocalDataSource();
 
   // Repositorios
   final authRepository = AuthRepositoryImpl(

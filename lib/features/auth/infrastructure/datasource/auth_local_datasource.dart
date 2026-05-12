@@ -5,9 +5,10 @@ class AuthLocalDataSource {
 
   static const String _tokenKey = 'AUTH_TOKEN';
   static const String _userIdKey = 'USER_ID';
+  static const String _biometricsEnabledKey = 'BIOMETRICS_ENABLED';
 
   // --- Guardar datos (Login Exitoso) ---
-  Future<void> saveAuthData({required String token, required int userId}) async {
+  Future<void> saveAuthgData({required String token, required int userId}) async {
     // Obtiene la instancia de SharedPreferences
     final prefs = await SharedPreferences.getInstance();
     // Guarda el token JWT como String
@@ -36,6 +37,18 @@ class AuthLocalDataSource {
     // Borra token y userId del almacenamiento local
     await prefs.remove(_tokenKey);
     await prefs.remove(_userIdKey);
+    await prefs.remove(_biometricsEnabledKey);
+  }
+
+  // --- Biometría ---
+  Future<void> setBiometricsEnabled(bool enabled) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_biometricsEnabledKey, enabled);
+  }
+
+  Future<bool> isBiometricsEnabled() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getBool(_biometricsEnabledKey) ?? false;
   }
 
 }

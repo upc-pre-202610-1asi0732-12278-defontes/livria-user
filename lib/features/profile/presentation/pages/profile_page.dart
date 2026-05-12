@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import '../../../../common/theme/app_colors.dart';
 import '../providers/profile_provider.dart';
 
+import '../widgets/my_communities_tab.dart';
 import '../widgets/profile_header.dart';
 import '../widgets/subscription_bar.dart';
 import '../widgets/my_orders_tab.dart';
@@ -128,6 +129,13 @@ class _ProfilePageState extends State<ProfilePage> {
                         index: 1,
                         isSelected: provider.selectedTab == 1
                     ),
+                    _buildTabButton(
+                        context,
+                        label: "MY COMMUNITIES",
+                        index: 2,
+                        isSelected: provider.selectedTab == 2
+                    ),
+
                   ],
                 ),
               ),
@@ -138,7 +146,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 padding: const EdgeInsets.symmetric(horizontal: 24.0),
                 child: provider.selectedTab == 0
                     ? const MyOrdersTab()
-                    : const EditBioTab(),
+                    : (provider.selectedTab == 1 ? const EditBioTab(): MyCommunitiesTab()),
               ),
 
               const SizedBox(height: 50),

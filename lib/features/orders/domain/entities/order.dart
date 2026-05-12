@@ -63,12 +63,14 @@ class ShippingDetails {
   final String city;
   final String district;
   final String reference;
+  final double price;
 
   ShippingDetails({
     required this.address,
     required this.city,
     required this.district,
     required this.reference,
+    required this.price
   });
 
   factory ShippingDetails.fromMap(Map<String, dynamic> map) {
@@ -77,7 +79,9 @@ class ShippingDetails {
       city: map['city'] ?? '',
       district: map['district'] ?? '',
       reference: map['reference'] ?? '',
+      price: (map['price'] as num?)?.toDouble() ?? 0.0
     );
+
   }
 
 
@@ -87,6 +91,7 @@ class ShippingDetails {
       'city': city,
       'district': district,
       'reference': reference,
+      'price': price,
     };
   }
 }

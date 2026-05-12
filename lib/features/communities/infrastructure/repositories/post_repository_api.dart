@@ -52,6 +52,7 @@ class PostRepositoryApi implements PostRepository {
   @override
   Future<Post> createPost({
     required int communityId,
+    required int userId,
     required String username,
     required String content,
     String? img,
@@ -59,6 +60,7 @@ class PostRepositoryApi implements PostRepository {
     // 1. Llamar al DataSource
     final http.Response response = await _dataSource.createPost(
       communityId: communityId,
+      userId: userId,
       username: username,
       content: content,
       img: img,
@@ -71,4 +73,35 @@ class PostRepositoryApi implements PostRepository {
       throw Exception('Failed to create post. Status: ${response.statusCode}, Body: ${response.body}');
     }
   }
+
+  @override
+  Future<void> deletePost(int postId) async {
+    await _dataSource.deletePost(postId);
+  }
+
+  @override
+  Future<Post> updatePost(int postId, String content, String? img) async {
+    final updatedPost = await _dataSource.updatePost(postId, content, img);
+    return updatedPost;
+  }
+
+  @override
+  Future<Map<String, int>> fetchReactionCounts(int postId) =>
+      _dataSource.fetchReactionCounts(postId);
+
+  @override
+  Future<int> fetchUserReactionStatus(int postId, int userId) =>
+      _dataSource.fetchUserReactionStatus(postId, userId);
+
+  @override
+  Future<void> reactToPost(int postId, int userId, int type) =>
+      _dataSource.reactToPost(postId, userId, type);
+
+  @override
+  Future<List<int>> fetchLikedPostIds(int userId) =>
+      _dataSource.fetchLikedPostIds(userId);
+
+  @override
+  Future<List<int>> fetchDislikedPostIds(int userId) =>
+      _dataSource.fetchDislikedPostIds(userId);
 }

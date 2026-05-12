@@ -1,10 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mockito/mockito.dart';
-import 'package:mockito/annotations.dart';
 import 'package:http/http.dart' as http;
 
 import 'package:livria_user/features/book/domain/entities/book.dart';
-import 'package:livria_user/features/book/domain/repositories/book_repository.dart';
 import 'package:livria_user/features/book/domain/repositories/book_repository_impl.dart';
 import 'package:livria_user/features/book/infrastructure/datasource/book_remote_datasource.dart';
 

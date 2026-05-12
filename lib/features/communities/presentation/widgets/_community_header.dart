@@ -14,12 +14,12 @@ class CommunityHeader extends StatelessWidget {
   final bool isJoined;
 
   const CommunityHeader({
-    Key? key,
+    super.key,
     required this.community,
     required this.getCommunityTypeLabel,
     required this.onJoinPressed,
     this.isJoined = false,
-  }) : super(key: key);
+  });
 
   Widget _CommunityImageContent({
     required String imageData,
@@ -178,19 +178,27 @@ class CommunityHeader extends StatelessWidget {
                   letterSpacing: 0.8,
                 ),
               ),
-              const SizedBox(height: 8),
-              Text(
-                community.description,
-                style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-                  color: AppColors.black.withOpacity(0.7),
+              const SizedBox(height: 12),
+              Container(
+                padding: const EdgeInsets.all(16.0),
+                decoration: BoxDecoration(
+                    color: AppColors.lightGrey,
+                    borderRadius: BorderRadius.circular(8.0),
+                    border: Border.all(color: AppColors.lightGrey.withOpacity(0.8))
                 ),
-                maxLines: 3,
-                overflow: TextOverflow.ellipsis,
+                child: Text(
+                  community.description,
+                  style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                    color: AppColors.black.withOpacity(0.7),
+                  ),
+                  maxLines: 3,
+                  overflow: TextOverflow.ellipsis,
+                ),
               ),
             ],
           ),
         ),
-        SizedBox(height: iconBottomMargin + iconSize / 2),
+        SizedBox(height: 20),
       ],
     );
   }

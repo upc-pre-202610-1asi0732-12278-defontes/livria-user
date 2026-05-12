@@ -35,13 +35,7 @@ class PostRepositoryImpl implements PostRepository {
 
   @override
   Future<List<Post>> fetchPostsByCommunityId(int communityId, int offset, int limit) async {
-    // CORRECCIÓN CLAVE: La variable debe ser de tipo List<Post> porque
-    // _dataSource.fetchPostsByCommunityId devuelve Future<List<Post>>.
-    // El DataSource ahora es responsable de manejar los códigos HTTP y el mapeo.
     final List<Post> posts = await _dataSource.fetchPostsByCommunityId(communityId, offset, limit);
-
-    // Simplemente devolvemos la lista. Si el DataSource devuelve una excepción
-    // (por error HTTP), esta se propagará automáticamente.
     return posts;
   }
 
@@ -60,12 +54,14 @@ class PostRepositoryImpl implements PostRepository {
   @override
   Future<Post> createPost({
     required int communityId,
+    required int userId,
     required String username,
     required String content,
     String? img,
   }) async {
     final http.Response response = await _dataSource.createPost(
       communityId: communityId,
+      userId: userId,
       username: username,
       content: content,
       img: img,
@@ -77,4 +73,35 @@ class PostRepositoryImpl implements PostRepository {
       throw Exception('HTTP ${response.statusCode}: Fallo al crear el post. Cuerpo: ${response.body}');
     }
   }
+
+  @override
+  Future<void> deletePost(int postId) async {
+    await _dataSource.deletePost(postId);
+  }
+
+  @override
+  Future<Post> updatePost(int postId, String content, String? img) async {
+    final updatedPost = await _dataSource.updatePost(postId, content, img);
+    return updatedPost;
+  }
+
+  @override
+  Future<Map<String, int>> fetchReactionCounts(int postId) =>
+      _dataSource.fetchReactionCounts(postId);
+
+  @override
+  Future<int> fetchUserReactionStatus(int postId, int userId) =>
+      _dataSource.fetchUserReactionStatus(postId, userId);
+
+  @override
+  Future<void> reactToPost(int postId, int userId, int type) =>
+      _dataSource.reactToPost(postId, userId, type);
+
+  @override
+  Future<List<int>> fetchLikedPostIds(int userId) =>
+      _dataSource.fetchLikedPostIds(userId);
+
+  @override
+  Future<List<int>> fetchDislikedPostIds(int userId) =>
+      _dataSource.fetchDislikedPostIds(userId);
 }

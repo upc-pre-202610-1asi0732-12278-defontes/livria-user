@@ -72,6 +72,7 @@ class MockCommunityRepository extends _i1.Mock
     required String? name,
     required String? description,
     required int? type,
+    required int? ownerId,
     required String? image,
     required String? banner,
   }) =>
@@ -80,6 +81,7 @@ class MockCommunityRepository extends _i1.Mock
               #name: name,
               #description: description,
               #type: type,
+              #ownerId: ownerId,
               #image: image,
               #banner: banner,
             }),
@@ -90,6 +92,7 @@ class MockCommunityRepository extends _i1.Mock
                   #name: name,
                   #description: description,
                   #type: type,
+                  #ownerId: ownerId,
                   #image: image,
                   #banner: banner,
                 }),

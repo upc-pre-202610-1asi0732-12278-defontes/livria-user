@@ -18,6 +18,11 @@ class ProfileRepositoryImpl implements ProfileRepository {
   }
 
   @override
+  Future<void> deleteCommunity(int communityId, int ownerId) async {
+    await remoteDataSource.deleteCommunity(communityId, ownerId);
+  }
+
+  @override
   Future<void> deleteAccount(int userId) async {
     await remoteDataSource.deleteAccount(userId);
   }

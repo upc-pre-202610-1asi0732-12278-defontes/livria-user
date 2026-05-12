@@ -1,11 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:livria_user/common/theme/app_theme.dart';
 import 'package:livria_user/common/routes/app_router.dart';
+import 'package:livria_user/features/communities/domain/repositories/community_repository_impl.dart';
+import 'package:livria_user/features/communities/domain/usecases/get_communities_usecase.dart';
+import 'package:livria_user/features/communities/infrastructure/datasource/community_remote_datasource.dart';
 import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
 
 import 'package:livria_user/common/di/dependencies.dart' as di;
 
+import 'features/communities/domain/repositories/post_repository_impl.dart';
+import 'features/communities/infrastructure/datasource/comment_remote_datasource.dart';
+import 'features/communities/infrastructure/datasource/post_remote_datasource.dart';
+import 'features/communities/infrastructure/repositories/comment_repository_impl.dart';
+import 'features/communities/presentation/providers/post_provider.dart';
 import 'features/orders/domain/usecases/get_user_orders_usecase.dart';
 import 'features/orders/presentation/providers/order_provider.dart';
 import 'features/orders/domain/usecases/create_order_usecase.dart';
@@ -62,6 +70,12 @@ class _MyAppState extends State<MyApp> {
             ),
           ),
         ),
+        ChangeNotifierProvider(
+          create: (_) => PostProvider(
+            postRepository: PostRepositoryImpl(PostRemoteDataSource()),
+            commentRepository: CommentRepositoryImpl(CommentRemoteDataSource()),
+          ),
+        ),
 
         ChangeNotifierProvider(
           create: (_) => ProfileProvider(
@@ -76,6 +90,13 @@ class _MyAppState extends State<MyApp> {
                 OrderRemoteDataSource(client: http.Client()),
               ),
             ),
+
+            // C. Caso de Uso de Comunidades
+            getCommunitiesUseCase: GetCommunitiesUseCase(
+              CommunityRepositoryImpl(
+                CommunityRemoteDataSource(client: http.Client()),
+              )
+            )
           ),
         ),
       ],
