@@ -1,3 +1,8 @@
+// US12 – Core Integration Test
+// Proyecto: livria-user
+// Framework: flutter_test + mockito
+
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';

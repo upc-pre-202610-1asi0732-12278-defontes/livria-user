@@ -1,3 +1,4 @@
+// us13_auth_repository_impl_test.dart
 // US13 – Core Integration Test
 // Valida que AuthRepositoryImpl orquesta correctamente
 // AuthRemoteDataSource + AuthLocalDataSource
@@ -7,12 +8,14 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 
-import 'package:livria_user/features/auth/domain/entities/user_entity.dart';
+// Importamos UserModel para el mock en lugar de UserEntity
+import 'package:livria_user/features/auth/infrastructure/model/user_model.dart';
 import 'package:livria_user/features/auth/infrastructure/datasource/auth_local_datasource.dart';
 import 'package:livria_user/features/auth/infrastructure/datasource/auth_remote_datasource.dart';
 import 'package:livria_user/features/auth/infrastructure/repositories/auth_repository_impl.dart';
 
-import 'auth_repository_impl_test.mocks.dart';
+// El nombre del archivo en minúsculas según la convención de Dart
+import 'us13_auth_repository_impl_test.mocks.dart';
 
 @GenerateMocks([AuthRemoteDataSource, AuthLocalDataSource])
 void main() {
@@ -20,9 +23,9 @@ void main() {
   late MockAuthLocalDataSource mockLocal;
   late AuthRepositoryImpl sut;
 
-  // Usuario de prueba que devuelve el servidor
-  final fakeUser = UserEntity(
-    id:       1,
+  // Usuario de prueba que devuelve el servidor (usando UserModel y el ID como String)
+  final fakeUser = UserModel(
+    id:       "1",
     username: "lector01",
     email:    "lector@livria.com",
     display:  "Lector de Prueba",
@@ -126,7 +129,7 @@ void main() {
         final result = await sut.login("lector01", "SecurePass123");
 
         // Assert — el usuario recibe acceso con sus datos correctos
-        expect(result.id,       equals(1));
+        expect(result.id,       equals("1")); // Verificamos contra "1" como String
         expect(result.username, equals("lector01"));
 
         // El token fue persistido localmente para mantener sesión
