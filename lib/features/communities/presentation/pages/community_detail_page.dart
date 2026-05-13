@@ -1,9 +1,9 @@
 import 'dart:async';
-import 'dart:convert';
 import 'dart:io';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:livria_user/common/services/cloudinary_upload_service.dart';
 import 'package:livria_user/common/theme/app_colors.dart';
 import 'package:livria_user/features/communities/infrastructure/datasource/community_remote_datasource.dart';
 import '../../../auth/infrastructure/model/user_model.dart';
@@ -189,10 +189,16 @@ class _CommunityDetailPageState extends State<CommunityDetailPage> {
     if (mounted) setState(() => _isPosting = true);
 
     try {
-      String? imageBase64;
+      String? imageUrl;
       if (_selectedImageFile != null) {
-        final bytes = await _selectedImageFile!.readAsBytes();
-        imageBase64 = "data:image/jpeg;base64,${base64Encode(bytes)}";
+        imageUrl = await CloudinaryUploadService.uploadFile(_selectedImageFile!);
+        if (imageUrl == null || imageUrl.isEmpty) {
+          _showSnackbar(
+            'Could not upload image. Check your connection.',
+            color: Colors.red,
+          );
+          return;
+        }
       }
 
       final success = await context.read<PostProvider>().addPost(
@@ -200,7 +206,7 @@ class _CommunityDetailPageState extends State<CommunityDetailPage> {
         userId: _currentUserId!,
         username: _username!,
         content: content,
-        img: imageBase64,
+        img: imageUrl,
       );
 
       if (success) {

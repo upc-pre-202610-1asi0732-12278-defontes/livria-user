@@ -1,5 +1,7 @@
-import 'dart:convert'; // para convertir imágenes a base64
-import 'dart:io'; // para manejar archivos locales
+import 'dart:io';
+
+import 'package:flutter/foundation.dart';
+import 'package:livria_user/common/services/cloudinary_upload_service.dart';
 import '../../domain/entities/user_entity.dart';
 import '../../domain/repositories/auth_repository.dart';
 import '../datasource/auth_local_datasource.dart';
@@ -38,25 +40,19 @@ class AuthRepositoryImpl implements AuthRepository {
     String? phrase,
     String? iconPath
 }) async {
-    String? iconBase64;
+    String? iconUrl;
 
     if (iconPath != null && iconPath.isNotEmpty) {
       try {
         final File imageFile = File(iconPath);
-        final List<int> imageBytes = await imageFile.readAsBytes();
-
-        final String base64String = base64Encode(imageBytes);
-        iconBase64 = "data:image/jpeg;base64,$base64String";
-
+        iconUrl = await CloudinaryUploadService.uploadFile(imageFile);
       } catch (e) {
-        print("Error convirtiendo imagen a Base64: $e");
-        iconBase64 = null;
+        debugPrint('Error subiendo icono a Cloudinary: $e');
+        iconUrl = null;
       }
     }
-    if (iconBase64 != null) {
-      print("📦 Longitud del Base64 a enviar: ${iconBase64.length} caracteres");
-      // Imprime solo los primeros 100 caracteres para ver si tiene el prefijo o no
-      print("📦 Inicio del Base64: ${iconBase64.substring(0, 100)}...");
+    if (iconUrl != null) {
+      debugPrint('Icono Cloudinary URL length: ${iconUrl.length}');
     }
 
     final registerData = {
@@ -66,7 +62,7 @@ class AuthRepositoryImpl implements AuthRepository {
       "password": password,
       "confirmPassword": password,
       "phrase": phrase ?? "",
-      "icon": iconBase64,
+      "icon": iconUrl,
     };
 
     await remoteDataSource.register(registerData);

@@ -4,9 +4,9 @@ import 'dart:io';
 import 'package:image_picker/image_picker.dart';
 import 'package:livria_user/features/auth/infrastructure/datasource/auth_local_datasource.dart';
 import 'package:livria_user/features/auth/infrastructure/datasource/auth_remote_datasource.dart';
+import 'package:livria_user/common/services/cloudinary_upload_service.dart';
 import '../../domain/entities/community.dart';
 import '../../domain/usecases/create_community_usecase.dart';
-import 'dart:convert';
 
 enum CommunityType {
   literature(1, 'LITERATURE'),
@@ -139,10 +139,9 @@ class _CreateCommunityPageState extends State<CreateCommunityPage> {
     }
   }
 
-  Future<String> _fileToBase64(XFile file) async {
+  Future<String?> _uploadXFileToCloudinary(XFile file, String filename) async {
     final bytes = await File(file.path).readAsBytes();
-    final String base64String = base64Encode(bytes);
-    return "data:image/jpeg;base64,$base64String";
+    return CloudinaryUploadService.uploadBytes(bytes, filename: filename);
   }
 
   // --- LÓGICA DE CREACIÓN ---
@@ -180,14 +179,32 @@ class _CreateCommunityPageState extends State<CreateCommunityPage> {
     String finalBannerUrl = _bannerController.text.trim();
 
     try {
-      // 3. Convertir Ícono a Base64 si se seleccionó archivo
+      // 3. Subir ícono a Cloudinary si se seleccionó archivo
       if (_selectedIconFile != null) {
-        finalImageUrl = await _fileToBase64(_selectedIconFile!);
+        final uploaded = await _uploadXFileToCloudinary(
+            _selectedIconFile!, 'community_icon.jpg');
+        if (uploaded == null || uploaded.isEmpty) {
+          _showSnackbar(
+            'Could not upload community icon. Check your connection.',
+            color: AppColors.errorRed,
+          );
+          return;
+        }
+        finalImageUrl = uploaded;
       }
 
-      // 4. Convertir Banner a Base64 si se seleccionó archivo
+      // 4. Subir banner a Cloudinary si se seleccionó archivo
       if (_selectedBannerFile != null) {
-        finalBannerUrl = await _fileToBase64(_selectedBannerFile!);
+        final uploaded = await _uploadXFileToCloudinary(
+            _selectedBannerFile!, 'community_banner.jpg');
+        if (uploaded == null || uploaded.isEmpty) {
+          _showSnackbar(
+            'Could not upload community banner. Check your connection.',
+            color: AppColors.errorRed,
+          );
+          return;
+        }
+        finalBannerUrl = uploaded;
       }
 
       // 5. Crear la comunidad usando las URLs finales

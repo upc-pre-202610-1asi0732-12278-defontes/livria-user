@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:livria_user/common/widgets/livria_book_cover.dart';
 import '../../domain/entities/cart_item.dart';
 import '../../../../common/theme/app_colors.dart';
 
@@ -30,8 +31,8 @@ class CartItemCard extends StatelessWidget {
           // IMAGEN DEL LIBRO
           ClipRRect(
             borderRadius: BorderRadius.circular(8),
-            child: Image.network(
-              item.book.cover,
+            child: LivriaBookCover(
+              cover: item.book.cover,
               width: 70,
               height: 100,
               fit: BoxFit.cover,

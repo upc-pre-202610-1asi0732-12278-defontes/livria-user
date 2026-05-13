@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:livria_user/common/widgets/livria_book_cover.dart';
 import '../../../../common/theme/app_colors.dart';
 import '../../../orders/domain/entities/order.dart';
 
@@ -61,8 +62,8 @@ class OrderDetailSheet extends StatelessWidget {
                       // 1. PORTADA
                       ClipRRect(
                         borderRadius: BorderRadius.circular(8),
-                        child: Image.network(
-                          item.bookCover,
+                        child: LivriaBookCover(
+                          cover: item.bookCover,
                           width: 50, height: 75,
                           fit: BoxFit.cover,
                           errorBuilder: (_,__,___) => Container(width: 50, height: 75, color: Colors.grey, child: const Icon(Icons.book)),

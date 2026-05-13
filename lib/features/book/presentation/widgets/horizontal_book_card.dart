@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:livria_user/common/widgets/livria_book_cover.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../common/theme/app_colors.dart';
 import '../../domain/entities/book.dart';
@@ -35,8 +36,8 @@ class HorizontalBookCard extends StatelessWidget {
                   borderRadius: BorderRadius.circular(6),
                   child: AspectRatio(
                     aspectRatio: 3.5 / 6,
-                    child: Image.network(
-                      b.cover,
+                    child: LivriaBookCover(
+                      cover: b.cover,
                       fit: BoxFit.cover,
                       alignment: Alignment.center,
                       errorBuilder: (_, __, ___) =>

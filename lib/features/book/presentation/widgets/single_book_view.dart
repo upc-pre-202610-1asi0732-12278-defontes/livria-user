@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:livria_user/common/widgets/livria_book_cover.dart';
 import 'package:livria_user/features/auth/infrastructure/datasource/auth_remote_datasource.dart';
 import 'package:livria_user/features/auth/infrastructure/model/user_model.dart';
 import 'package:livria_user/features/book/application/services/favorite_service.dart';
@@ -485,8 +486,8 @@ class _SingleBookViewState extends State<SingleBookView> {
                   // Imagen de la Portada
                   ClipRRect(
                     borderRadius: BorderRadius.circular(10.0),
-                    child: Image.network(
-                      widget.b.cover,
+                    child: LivriaBookCover(
+                      cover: widget.b.cover,
                       height: 280,
                       width: 160,
                       fit: BoxFit.cover,

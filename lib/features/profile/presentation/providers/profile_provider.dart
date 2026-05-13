@@ -1,8 +1,8 @@
-import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:livria_user/common/services/cloudinary_upload_service.dart';
 import 'package:livria_user/features/communities/domain/entities/community.dart';
 import 'package:livria_user/features/communities/domain/usecases/get_communities_usecase.dart';
 import '../../../auth/infrastructure/datasource/auth_local_datasource.dart';
@@ -56,15 +56,22 @@ class ProfileProvider extends ChangeNotifier {
       );
 
       if (image != null) {
-        final bytes = await File(image.path).readAsBytes();
-        final String base64String = base64Encode(bytes);
-
-        final String fullBase64 = "data:image/jpeg;base64,$base64String";
-
-        iconController.text = fullBase64;
+        final file = File(image.path);
+        final url = await CloudinaryUploadService.uploadFile(file);
+        if (url == null) {
+          if (context.mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('No se pudo subir la imagen. Revisa tu conexión.'),
+              ),
+            );
+          }
+          return;
+        }
+        iconController.text = url;
 
         if (_user != null) {
-          _user = _user!.copyWith(icon: fullBase64);
+          _user = _user!.copyWith(icon: url);
         }
         notifyListeners();
       }

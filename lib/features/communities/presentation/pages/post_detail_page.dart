@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:livria_user/common/services/cloudinary_upload_service.dart';
 import 'package:livria_user/common/theme/app_colors.dart';
 import '../../domain/entities/post.dart';
 import '../../domain/entities/comment.dart';
@@ -173,8 +174,17 @@ class _PostDetailPageState extends State<PostDetailPage> {
               onPressed: () async {
                 String? finalImg = currentImg;
                 if (selectedImage != null) {
-                  final bytes = await selectedImage!.readAsBytes();
-                  finalImg = "data:image/jpeg;base64,${base64Encode(bytes)}";
+                  finalImg =
+                      await CloudinaryUploadService.uploadFile(selectedImage!);
+                  if (finalImg == null) {
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                            content: Text('Could not upload image.')),
+                      );
+                    }
+                    return;
+                  }
                 }
                 final success = await context.read<PostProvider>().editPost(
                   widget.post.id, controller.text, finalImg,
