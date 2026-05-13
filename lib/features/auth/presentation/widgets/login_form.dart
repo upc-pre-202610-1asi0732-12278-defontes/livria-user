@@ -1,8 +1,34 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:http/http.dart' as http;
 import '../../../../common/theme/app_colors.dart';
 import '../../../../common/di/dependencies.dart' as di;
 import '../helpers/biometric_post_auth.dart';
+
+/// El backend y la red comparten el mismo `catch`; esto evita mostrar
+/// "wrong password" cuando en realidad no hubo conexión al servidor.
+String _loginFailureMessage(Object error) {
+  if (error is SocketException ||
+      error is HttpException ||
+      error is HandshakeException ||
+      error is TlsException ||
+      error is http.ClientException) {
+    return "Can't reach the server. Check Wi‑Fi or mobile data, turn off VPN/private DNS if any, and try again.";
+  }
+  final s = error.toString().toLowerCase();
+  if (s.contains('failed host lookup') ||
+      s.contains('connection refused') ||
+      s.contains('connection reset') ||
+      s.contains('network is unreachable') ||
+      s.contains('timed out') ||
+      s.contains('handshake') ||
+      s.contains('certificate')) {
+    return "Can't reach the server. Check Wi‑Fi or mobile data, turn off VPN/private DNS if any, and try again.";
+  }
+  return 'Error logging in. Please verify your credentials.';
+}
 
 class LoginForm extends StatefulWidget {
   const LoginForm({super.key});
@@ -50,8 +76,8 @@ class _LoginFormState extends State<LoginForm> {
       } catch (e) {
         if (mounted) {
           setState(() {
-            _errorMessage = 'Error logging in. Please verify your credentials.';
-            print('Login Error: $e');
+            _errorMessage = _loginFailureMessage(e);
+            debugPrint('Login Error: $e');
           });
         }
       } finally {

@@ -1,0 +1,45 @@
+# Publica el APK en GitHub Releases al pushear un tag de versión (ej. v1.0.0).
+# Requiere: permisos de workflow "Read and write" para GITHUB_TOKEN (Settings → Actions → General).
+
+name: Release APK
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Dependencies
+        run: flutter pub get
+
+      - name: Build APK (release)
+        run: flutter build apk --release
+
+      - name: Name artifact with tag
+        shell: bash
+        run: |
+          cp build/app/outputs/flutter-apk/app-release.apk \
+            "livria-user-${{ github.ref_name }}.apk"
+
+      - name: GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: livria-user-${{ github.ref_name }}.apk
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
