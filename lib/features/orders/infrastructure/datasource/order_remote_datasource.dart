@@ -6,7 +6,7 @@ import '../../../auth/infrastructure/datasource/auth_local_datasource.dart';
 import '../../domain/entities/order.dart';
 
 class OrderRemoteDataSource {
-  static const String _base = Env.apiBase;
+  static final String _base = Env.apiBase;
   static const String _orderPath = '/api/v1/orders';
 
   final http.Client _client;

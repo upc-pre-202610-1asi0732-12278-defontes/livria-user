@@ -6,7 +6,7 @@ import '../../../auth/infrastructure/datasource/auth_local_datasource.dart';
 import '../../domain/entities/post.dart';
 
 class PostRemoteDataSource {
-  static const String _base = Env.apiBase;
+  static final String _base = Env.apiBase;
   static const String _postsPath = '/api/v1/posts';
 
   final AuthLocalDataSource _authDs;

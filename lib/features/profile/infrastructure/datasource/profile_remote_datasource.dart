@@ -7,7 +7,7 @@ import '../../../auth/infrastructure/datasource/auth_local_datasource.dart';
 import '../../domain/entities/user_profile.dart';
 
 class ProfileRemoteDataSource {
-  static const String _base = Env.apiBase;
+  static final String _base = Env.apiBase;
   static const String _userPath = '/api/v1/userclients';
   static const String _communityPath = '/api/v1/communities';
 

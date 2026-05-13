@@ -46,6 +46,9 @@ dependencies {
     // Kotlin standard library
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.8.0")
 
+    // NormalTheme en styles.xml hereda de Theme.MaterialComponents.*
+    implementation("com.google.android.material:material:1.12.0")
+
     // Core library desugaring requerida por flutter_local_notifications
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.5")
 }

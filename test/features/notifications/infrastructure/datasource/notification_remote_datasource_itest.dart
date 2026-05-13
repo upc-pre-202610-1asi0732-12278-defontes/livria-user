@@ -16,7 +16,7 @@ void main() {
   late MockClient mockClient;
   late MockAuthLocalDataSource mockAuthDs;
 
-  const String baseUrl = Env.apiBase;
+  final String baseUrl = Env.apiBase;
   const String notificationsPath = '/api/v1/notifications/user';
   const String hideAllPath = '/api/v1/notifications/hide-all';
   const String testToken = 'valid-notif-token';

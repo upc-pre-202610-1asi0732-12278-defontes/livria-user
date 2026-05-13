@@ -1,9 +1,9 @@
-// Textos legales del registro. Alineados con Acuerdo SaaS Livria v1.1 (Defontes S.A.C.).
+// Textos legales del registro. Resumen en app; versión íntegra y SaaS en la landing (ver register_legal_urls.dart).
 
 /// Resumen para la app; el documento contractual íntegro puede publicarse en el sitio web.
 const String registerTermsAndConditionsEs = '''
 TÉRMINOS Y CONDICIONES DE LIVRIA
-Última actualización: 12 de mayo de 2026 · Versión 1.1
+Última actualización: 12 de mayo de 2026 · Versión 1.2
 
 Bienvenido/a. Estos Términos regulan el uso de la aplicación móvil Livria y los servicios asociados (en adelante, el «Servicio»), prestados por Defontes S.A.C. («Defontes», «nosotros»), con domicilio en Lima Metropolitana, Perú.
 
@@ -22,7 +22,7 @@ Debes proporcionar datos veraces y mantener la confidencialidad de tu usuario y 
 La aplicación puede usar almacenamiento local en tu dispositivo (por ejemplo, preferencias o sesión) para el correcto funcionamiento del Servicio.
 
 3. Privacidad y datos
-El tratamiento de datos personales se describe en la Política de privacidad, que forma parte de estos Términos. Defontes trata los datos conforme a la Ley N.° 29733 y su normativa.
+El tratamiento de datos personales se describe en la Política de privacidad, que forma parte de estos Términos e incluye el origen de la información personal. Defontes trata los datos conforme a la Ley N.° 29733 y su normativa.
 
 4. Mapas y ubicación (Google Maps)
 Si utilizas la función de mapa o ubicación de tienda, se puede emplear Google Maps. Al usarla aceptas las condiciones y políticas aplicables de Google además de estos Términos.
@@ -60,12 +60,15 @@ Estos Términos se rigen por las leyes del Perú. Las controversias se someten a
 13. Contacto
 Consultas: support@defontes.com · Av. República de Chile 661, Lima, Perú.
 
-Aceptación: al marcar la casilla de aceptación en el registro confirmas haber leído estos Términos y la Política de privacidad.
+14. Acuerdo SaaS (texto íntegro)
+Estos Términos se complementan con el Acuerdo de licencia de software como servicio (SaaS) de Livria, que constituye el marco contractual principal. El texto íntegro está publicado en el sitio web oficial de Livria; puedes abrirlo desde el botón «Acuerdo SaaS» de este diálogo o desde la versión web de los términos.
+
+Aceptación: al marcar la casilla de aceptación en el registro confirmas haber leído estos Términos, la Política de privacidad y tomar conocimiento del Acuerdo SaaS publicado en el sitio web.
 ''';
 
 const String registerPrivacyPolicyEs = '''
 POLÍTICA DE PRIVACIDAD DE LIVRIA
-Última actualización: 12 de mayo de 2026 · Versión 1.1
+Última actualización: 12 de mayo de 2026 · Versión 1.2
 
 Defontes S.A.C. («Defontes», «nosotros») describe cómo tratamos tus datos personales cuando usas la aplicación Livria (el «Servicio»), de conformidad con la Ley N.° 29733, Ley de Protección de Datos Personales del Perú, y su Reglamento.
 
@@ -78,33 +81,40 @@ Defontes S.A.C., Lima Metropolitana, Perú. Contacto: support@defontes.com
 • Uso del Servicio: datos técnicos habituales (dispositivo, sistema, diagnóstico básico) para operar y mejorar la app.
 • Contenido que publiques: por ejemplo imágenes o textos en comunidades o perfil, según las funciones habilitadas.
 
-3. Finalidades
+3. Origen de la información personal
+En cumplimiento del principio de transparencia, informamos de dónde puede obtenerse la información que tratamos:
+• Del titular (tú): datos que ingresas de forma voluntaria al registrarte, completar tu perfil, realizar un pedido, subir un comprobante de pago cuando la app lo permita, publicar en comunidades o contactarnos por los canales habilitados.
+• Generados por el uso del Servicio: datos técnicos o de registro necesarios para autenticación, seguridad, diagnóstico y mejora del Servicio (por ejemplo identificadores de sesión o del dispositivo en la medida requerida por la plataforma).
+• Comunicaciones: contenido de los mensajes o solicitudes que nos envíes a través del correo o funciones de soporte.
+• Terceros, solo cuando actives integraciones: por ejemplo, al usar mapas (p. ej. Google Maps), parte de la información puede ser procesada por ese proveedor según sus propios términos y política de privacidad; Defontes no controla el tratamiento que el tercero realice fuera de lo estrictamente enlazado a la función.
+
+4. Finalidades
 Gestionar el registro y la autenticación; procesar pedidos y suscripciones; enviar notificaciones relacionadas con el Servicio; soporte; seguridad; cumplimiento legal; y mejora del Servicio.
 
-4. Pagos (CCI)
+5. Pagos (CCI)
 Los pagos se realizan mediante transferencia bancaria manual según las instrucciones en la app. No recopilamos ni almacenamos número completo de tarjeta ni CVV dentro de Livria para ese mecanismo. Podemos registrar que informaste o adjuntaste un comprobante cuando la funcionalidad lo permita.
 
-5. Ubicación y mapas
+6. Ubicación y mapas
 Si activas funciones que usan mapa o ubicación (p. ej. Google Maps), los datos de ubicación se tratan según lo necesario para esa función y las políticas del proveedor de mapas.
 
-6. Cámara y galería
+7. Cámara y galería
 Solo para las finalidades que la app solicite en el momento (por ejemplo foto de perfil o publicación en comunidades).
 
-7. Conservación y seguridad
+8. Conservación y seguridad
 Conservamos los datos el tiempo necesario para las finalidades y plazos legales. Aplicamos medidas técnicas y organizativas razonables (incluido uso de conexiones cifradas cuando corresponda). Ningún sistema es 100 % invulnerable.
 
-8. Cesiones
+9. Cesiones
 No vendemos tus datos personales. Podremos comunicarlos a proveedores que nos ayuden a operar el Servicio (hosting, mensajería, etc.) bajo obligaciones de confidencialidad y tratamiento, o cuando una autoridad competente lo exija.
 
-9. Derechos del titular (ARCO y otros)
+10. Derechos del titular (ARCO y otros)
 Puedes ejercer derechos de acceso, rectificación, cancelación, oposición y los demás que la ley peruana reconozca, escribiendo a support@defontes.com. Podremos solicitar información para verificar tu identidad.
 
-10. Menores
+11. Menores
 El Servicio no está dirigido a menores de 13 años. No recopilamos datos de menores a sabiendas.
 
-11. Cambios
-Publicaremos la versión actualizada de esta política en la app y/o canales indicados y actualizaremos la fecha de «Última actualización». Cambios relevantes se comunicarán según la ley y estos Términos.
+12. Cambios
+Publicaremos la versión actualizada de esta política en la app y/o canales indicados y actualizaremos la fecha de «Última actualización». Cambios relevantes se comunicarán según la ley y los Términos y condiciones.
 
-12. Contacto
+13. Contacto
 support@defontes.com · Av. República de Chile 661, Lima, Perú.
 ''';

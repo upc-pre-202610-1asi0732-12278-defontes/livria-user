@@ -113,29 +113,33 @@ class _ProfilePageState extends State<ProfilePage> {
 
               // PESTAÑAS (TABS)
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                padding: const EdgeInsets.symmetric(horizontal: 12.0),
                 child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
-                    _buildTabButton(
+                    Expanded(
+                      child: _buildTabButton(
                         context,
                         label: "MY ORDERS",
                         index: 0,
-                        isSelected: provider.selectedTab == 0
+                        isSelected: provider.selectedTab == 0,
+                      ),
                     ),
-                    _buildTabButton(
+                    Expanded(
+                      child: _buildTabButton(
                         context,
                         label: "EDIT BIO",
                         index: 1,
-                        isSelected: provider.selectedTab == 1
+                        isSelected: provider.selectedTab == 1,
+                      ),
                     ),
-                    _buildTabButton(
+                    Expanded(
+                      child: _buildTabButton(
                         context,
                         label: "MY COMMUNITIES",
                         index: 2,
-                        isSelected: provider.selectedTab == 2
+                        isSelected: provider.selectedTab == 2,
+                      ),
                     ),
-
                   ],
                 ),
               ),
@@ -199,18 +203,25 @@ class _ProfilePageState extends State<ProfilePage> {
       onTap: () => context.read<ProfileProvider>().changeTab(index),
       borderRadius: BorderRadius.circular(8),
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
         decoration: isSelected
             ? BoxDecoration(
-            border: Border(bottom: BorderSide(color: AppColors.vibrantBlue, width: 3))
-        )
+                border: Border(bottom: BorderSide(color: AppColors.vibrantBlue, width: 3)),
+              )
             : null,
-        child: Text(
-          label,
-          style: TextStyle(
-            color: isSelected ? AppColors.vibrantBlue : Colors.grey,
-            fontWeight: isSelected ? FontWeight.w900 : FontWeight.bold,
-            fontSize: 14,
+        child: FittedBox(
+          fit: BoxFit.scaleDown,
+          alignment: Alignment.center,
+          child: Text(
+            label,
+            textAlign: TextAlign.center,
+            maxLines: 1,
+            style: TextStyle(
+              color: isSelected ? AppColors.vibrantBlue : Colors.grey,
+              fontWeight: isSelected ? FontWeight.w900 : FontWeight.bold,
+              fontSize: 14,
+            ),
           ),
         ),
       ),

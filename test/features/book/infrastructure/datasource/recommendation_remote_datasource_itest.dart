@@ -15,7 +15,7 @@ void main() {
   late MockClient mockClient;
   late MockAuthLocalDataSource mockAuthDs;
 
-  const String baseUrl = Env.apiBase;
+  final String baseUrl = Env.apiBase;
   const String recommendationsPath = '/api/v1/recommendations/users';
   const String testToken = 'valid-recommendation-token';
   const int testUserId = 999;

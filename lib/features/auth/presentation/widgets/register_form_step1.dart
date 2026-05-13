@@ -2,7 +2,9 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:email_validator/email_validator.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../../../common/legal/register_legal_texts.dart';
+import '../../../../common/legal/register_legal_urls.dart';
 import '../../../../common/theme/app_colors.dart';
 import '../../infrastructure/registration_availability.dart';
 
@@ -299,10 +301,34 @@ class _RegisterFormStep1State extends State<RegisterFormStep1> {
   }
 }
 
+Future<void> _launchLegalUrl(BuildContext context, String url) async {
+  final uri = Uri.parse(url);
+  try {
+    final launched = await launchUrl(uri, mode: LaunchMode.externalApplication);
+    if (!launched && context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('No se pudo abrir el enlace.'),
+          backgroundColor: AppColors.errorRed,
+        ),
+      );
+    }
+  } catch (_) {
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('No se pudo abrir el enlace.'),
+          backgroundColor: AppColors.errorRed,
+        ),
+      );
+    }
+  }
+}
+
 void _showTermsDialog(BuildContext context) {
   showDialog(
     context: context,
-    builder: (context) {
+    builder: (dialogContext) {
       return AlertDialog(
         title: const Text(
           'Términos y condiciones',
@@ -317,13 +343,35 @@ void _showTermsDialog(BuildContext context) {
             style: TextStyle(fontSize: 14, height: 1.5),
           ),
         ),
+        actionsAlignment: MainAxisAlignment.end,
         actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text(
-              'Cerrar',
-              style: TextStyle(color: AppColors.darkBlue, fontWeight: FontWeight.bold),
-            ),
+          Wrap(
+            alignment: WrapAlignment.end,
+            spacing: 4,
+            runSpacing: 4,
+            children: [
+              TextButton(
+                onPressed: () => _launchLegalUrl(dialogContext, livriaLegalUrlTerms),
+                child: const Text(
+                  'Ver en la web',
+                  style: TextStyle(color: AppColors.darkBlue, fontWeight: FontWeight.w600),
+                ),
+              ),
+              TextButton(
+                onPressed: () => _launchLegalUrl(dialogContext, livriaLegalUrlSaaS),
+                child: const Text(
+                  'Acuerdo SaaS',
+                  style: TextStyle(color: AppColors.darkBlue, fontWeight: FontWeight.w600),
+                ),
+              ),
+              TextButton(
+                onPressed: () => Navigator.of(dialogContext).pop(),
+                child: const Text(
+                  'Cerrar',
+                  style: TextStyle(color: AppColors.darkBlue, fontWeight: FontWeight.bold),
+                ),
+              ),
+            ],
           ),
         ],
       );
@@ -335,7 +383,7 @@ void _showTermsDialog(BuildContext context) {
 void _showPrivacyDialog(BuildContext context) {
   showDialog(
     context: context,
-    builder: (context) {
+    builder: (dialogContext) {
       return AlertDialog(
         title: const Text(
           'Política de privacidad',
@@ -350,13 +398,28 @@ void _showPrivacyDialog(BuildContext context) {
             style: TextStyle(fontSize: 14, height: 1.5),
           ),
         ),
+        actionsAlignment: MainAxisAlignment.end,
         actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text(
-              'Cerrar',
-              style: TextStyle(color: AppColors.darkBlue, fontWeight: FontWeight.bold),
-            ),
+          Wrap(
+            alignment: WrapAlignment.end,
+            spacing: 4,
+            runSpacing: 4,
+            children: [
+              TextButton(
+                onPressed: () => _launchLegalUrl(dialogContext, livriaLegalUrlPrivacy),
+                child: const Text(
+                  'Ver en la web',
+                  style: TextStyle(color: AppColors.darkBlue, fontWeight: FontWeight.w600),
+                ),
+              ),
+              TextButton(
+                onPressed: () => Navigator.of(dialogContext).pop(),
+                child: const Text(
+                  'Cerrar',
+                  style: TextStyle(color: AppColors.darkBlue, fontWeight: FontWeight.bold),
+                ),
+              ),
+            ],
           ),
         ],
       );

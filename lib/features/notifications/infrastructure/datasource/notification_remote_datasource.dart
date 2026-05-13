@@ -5,7 +5,7 @@ import 'package:livria_user/common/config/env.dart';
 import 'package:livria_user/features/auth/infrastructure/datasource/auth_local_datasource.dart';
 
 class NotificationRemoteDataSource {
-  static const String _base = Env.apiBase;
+  static final String _base = Env.apiBase;
   static const String _notificationsPath = '/api/v1/notifications/user';
   static const String _hideAllPath = '/api/v1/notifications/hide-all';
 

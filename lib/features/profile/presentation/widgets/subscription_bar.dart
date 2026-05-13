@@ -125,7 +125,7 @@ class SubscriptionBar extends StatelessWidget {
             SizedBox(
               width: double.infinity,
               child: OutlinedButton.icon(
-                onPressed: () => context.push('/profile/subscription-payment'),
+                onPressed: () => context.push('/profile/subscription'),
                 icon: const Icon(Icons.upload_outlined, size: 16),
                 label: const Text("UPLOAD PAYMENT PROOF",
                     style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),

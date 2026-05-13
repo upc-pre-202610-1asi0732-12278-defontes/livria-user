@@ -15,7 +15,7 @@ void main() {
   late MockClient mockClient;
   late MockAuthLocalDataSource mockAuthDs;
 
-  const String baseUrl = Env.apiBase;
+  final String baseUrl = Env.apiBase;
   const String reviewsPath = '/api/v1/reviews';
   const String testToken = 'test-jwt-token';
   const int testUserId = 123;

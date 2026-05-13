@@ -5,7 +5,7 @@ import 'package:livria_user/common/config/env.dart';
 import '../../../auth/infrastructure/datasource/auth_local_datasource.dart';
 
 class CommunityRemoteDataSource {
-  static const String _base = Env.apiBase;
+  static final String _base = Env.apiBase;
   static const String _communitiesPath = '/api/v1/communities';
   static const String _userComPath = '/api/v1/users';
 

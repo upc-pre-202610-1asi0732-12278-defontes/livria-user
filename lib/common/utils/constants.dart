@@ -1,5 +1,7 @@
-class Constants {
-  // static const String apiBaseUrl = 'https://lililivria.azurewebsites.net/api/v1';
-  static const String apiBaseUrl = 'http://192.168.1.42:5119/api/v1';
+import '../config/env.dart';
 
+class Constants {
+  /// Misma base que el resto de datasources (`Env.apiBase` + `/api/v1`).
+  /// Local: `flutter run --dart-define=API_BASE=http://127.0.0.1:5119`
+  static String get apiBaseUrl => '${Env.apiBase}/api/v1';
 }

@@ -20,8 +20,6 @@ import 'features/orders/domain/usecases/create_order_usecase.dart';
 import 'features/orders/infrastructure/repositories/order_repository_impl.dart';
 import 'features/orders/infrastructure/datasource/order_remote_datasource.dart';
 
-import 'package:flutter_stripe/flutter_stripe.dart';
-
 import 'features/profile/infrastructure/datasource/profile_remote_datasource.dart';
 import 'features/profile/infrastructure/repositories/profile_repository_impl.dart';
 import 'features/profile/presentation/providers/profile_provider.dart';
@@ -32,8 +30,6 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   await di.initializeDependencies();
-
-  Stripe.publishableKey = "pk_test_51SYEEjCT8H4q0SwHXOXEueZELjE8n2mE2HO2RePX2sUBNn2sWUo85aROv82Cz1CxYNMBrXB3MfghckoOFsYd56sB00XotlaES0";
 
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,

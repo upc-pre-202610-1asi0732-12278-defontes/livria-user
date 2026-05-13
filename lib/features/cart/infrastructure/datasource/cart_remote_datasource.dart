@@ -7,7 +7,7 @@ import '../../../auth/infrastructure/datasource/auth_local_datasource.dart';
 
 
 class CartRemoteDataSource {
-  static const String _base = Env.apiBase;
+  static final String _base = Env.apiBase;
   static const String _cartPath = '/api/v1/cart-items';
 
   final http.Client _client;

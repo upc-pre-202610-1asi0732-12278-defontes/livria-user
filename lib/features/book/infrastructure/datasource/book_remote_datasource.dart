@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 import 'package:livria_user/common/config/env.dart';
 
 class BookRemoteDataSource {
-  static const String _base = Env.apiBase;
+  static final String _base = Env.apiBase;
   static const String _booksPath = '/api/v1/books';
 
   final http.Client _client;

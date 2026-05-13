@@ -6,7 +6,7 @@ import 'package:livria_user/common/config/env.dart';
 import '../../../auth/infrastructure/datasource/auth_local_datasource.dart';
 
 class ReviewRemoteDataSource {
-  static const String _base = Env.apiBase;
+  static final String _base = Env.apiBase;
   static const String _reviewsPath = '/api/v1/reviews';
 
   final http.Client _client;

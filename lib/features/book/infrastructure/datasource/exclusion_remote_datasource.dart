@@ -4,7 +4,7 @@ import 'package:livria_user/features/auth/infrastructure/datasource/auth_local_d
 import 'dart:convert';
 
 class ExclusionRemoteDataSource {
-  static const String _base = Env.apiBase;
+  static final String _base = Env.apiBase;
   static const String _userClientsPath = '/api/v1/userclients';
 
   final http.Client _client;

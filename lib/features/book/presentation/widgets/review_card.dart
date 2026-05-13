@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:livria_user/common/config/env.dart';
 import 'package:livria_user/features/auth/infrastructure/datasource/auth_remote_datasource.dart';
 import '../../../../common/theme/app_colors.dart';
 import '../../domain/entities/review.dart';
@@ -86,9 +87,9 @@ class _ReviewCardState extends State<ReviewCard> {
     }
 
     // SOPORTE PARA URL
-    final String fullUrl = iconData.startsWith('http') 
-        ? iconData 
-        : 'https://lililivria.azurewebsites.net/${iconData.startsWith('/') ? iconData.substring(1) : iconData}';
+    final String fullUrl = iconData.startsWith('http')
+        ? iconData
+        : '${Env.apiBase}/${iconData.startsWith('/') ? iconData.substring(1) : iconData}';
 
     return Image.network(
       fullUrl,
