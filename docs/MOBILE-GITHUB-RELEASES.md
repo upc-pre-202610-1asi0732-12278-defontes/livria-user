@@ -10,7 +10,8 @@ Este documento describe el flujo para **Livria User** (`livria-user`). El mismo 
 
 1. Repositorio en GitHub con el código de la app Flutter.
 2. En **Settings → Actions → General → Workflow permissions**, activar **Read and write** (para que el workflow pueda crear/editar Releases con `GITHUB_TOKEN`).
-3. Opcional: keystore de **release** propio si dejáis de firmar con debug (hoy `android/app/build.gradle.kts` usa la firma debug en release; válido para pruebas internas).
+3. Opcional: el workflow ya pasa `--dart-define=API_BASE=...` a producción; si cambiáis de host, editad `.github/workflows/release-apk.yml` y `lib/common/config/env.dart`.
+4. Opcional: keystore de **release** propio si dejáis de firmar con debug (hoy `android/app/build.gradle.kts` usa la firma debug en release; válido para pruebas internas).
 
 ---
 

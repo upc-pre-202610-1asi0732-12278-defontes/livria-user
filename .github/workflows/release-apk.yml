@@ -28,7 +28,9 @@ jobs:
         run: flutter pub get
 
       - name: Build APK (release)
-        run: flutter build apk --release
+        run: |
+          flutter build apk --release \
+            --dart-define=API_BASE=https://livriabackend-g5afdubmcxfacjbe.chilecentral-01.azurewebsites.net
 
       - name: Name artifact with tag
         shell: bash
