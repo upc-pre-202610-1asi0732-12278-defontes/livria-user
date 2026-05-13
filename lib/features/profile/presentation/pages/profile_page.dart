@@ -107,7 +107,11 @@ class _ProfilePageState extends State<ProfilePage> {
               ),
 
               // BARRA DE SUSCRIPCIÓN (CORREGIDA)
-              SubscriptionBar(currentPlan: user.subscription),
+              SubscriptionBar(
+                currentPlan: user.subscription,
+                planChangeDate: user.planChangeDate,
+                hasPayed: user.hasPayed,
+              ),
 
               const SizedBox(height: 20),
 

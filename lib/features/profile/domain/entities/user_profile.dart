@@ -42,12 +42,24 @@ class UserProfile {
       email: map['email'] ?? '',
       icon: map['icon'] ?? '',
       phrase: map['phrase'] ?? '',
-      subscription: map['subscription'] ?? 'freeplan',
-      planChangeDate: map['planChangeDate'] != null
-          ? DateTime.tryParse(map['planChangeDate'].toString())
-          : null,
-      hasPayed: map['hasPayed'] ?? false,
+      subscription: (map['subscription'] ?? map['Subscription'] ?? 'freeplan').toString(),
+      planChangeDate: _parseDateTime(map['planChangeDate'] ?? map['PlanChangeDate']),
+      hasPayed: _parseBool(map['hasPayed'] ?? map['HasPayed']),
     );
+  }
+
+  static DateTime? _parseDateTime(dynamic value) {
+    if (value == null) return null;
+    return DateTime.tryParse(value.toString());
+  }
+
+  /// Acepta camelCase (JSON por defecto en .NET) y PascalCase por si el API cambia.
+  static bool _parseBool(dynamic value) {
+    if (value == null) return false;
+    if (value is bool) return value;
+    if (value is String) return value.toLowerCase() == 'true';
+    if (value is num) return value != 0;
+    return false;
   }
 
   Map<String, dynamic> toMap() {
