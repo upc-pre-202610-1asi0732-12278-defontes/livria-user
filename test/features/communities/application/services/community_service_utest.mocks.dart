@@ -58,6 +58,16 @@ class MockCommunityRepository extends _i1.Mock
           as _i5.Future<List<_i2.Community>>);
 
   @override
+  _i5.Future<List<_i2.Community>> getCommunitiesByUser(int? userId) =>
+      (super.noSuchMethod(
+            Invocation.method(#getCommunitiesByUser, [userId]),
+            returnValue: _i5.Future<List<_i2.Community>>.value(
+              <_i2.Community>[],
+            ),
+          )
+          as _i5.Future<List<_i2.Community>>);
+
+  @override
   _i5.Future<List<_i2.Community>> searchCommunities(String? query) =>
       (super.noSuchMethod(
             Invocation.method(#searchCommunities, [query]),

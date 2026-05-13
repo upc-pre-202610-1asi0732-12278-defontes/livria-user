@@ -3,13 +3,13 @@
 // Do not manually edit this file.
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
-import 'dart:async' as _i4;
+import 'dart:async' as _i5;
 
 import 'package:http/http.dart' as _i2;
 import 'package:livria_user/features/communities/domain/entities/post.dart'
-    as _i5;
-import 'package:livria_user/features/communities/infrastructure/datasource/post_remote_datasource.dart'
     as _i3;
+import 'package:livria_user/features/communities/infrastructure/datasource/post_remote_datasource.dart'
+    as _i4;
 import 'package:mockito/mockito.dart' as _i1;
 
 // ignore_for_file: type=lint
@@ -31,17 +31,22 @@ class _FakeResponse_0 extends _i1.SmartFake implements _i2.Response {
     : super(parent, parentInvocation);
 }
 
+class _FakePost_1 extends _i1.SmartFake implements _i3.Post {
+  _FakePost_1(Object parent, Invocation parentInvocation)
+    : super(parent, parentInvocation);
+}
+
 /// A class which mocks [PostRemoteDataSource].
 ///
 /// See the documentation for Mockito's code generation for more information.
 class MockPostRemoteDataSource extends _i1.Mock
-    implements _i3.PostRemoteDataSource {
+    implements _i4.PostRemoteDataSource {
   MockPostRemoteDataSource() {
     _i1.throwOnMissingStub(this);
   }
 
   @override
-  _i4.Future<List<_i5.Post>> fetchPostsByCommunityId(
+  _i5.Future<List<_i3.Post>> fetchPostsByCommunityId(
     int? communityId,
     int? offset,
     int? limit,
@@ -52,22 +57,22 @@ class MockPostRemoteDataSource extends _i1.Mock
               offset,
               limit,
             ]),
-            returnValue: _i4.Future<List<_i5.Post>>.value(<_i5.Post>[]),
+            returnValue: _i5.Future<List<_i3.Post>>.value(<_i3.Post>[]),
           )
-          as _i4.Future<List<_i5.Post>>);
+          as _i5.Future<List<_i3.Post>>);
 
   @override
-  _i4.Future<_i2.Response> fetchPostById(int? id) =>
+  _i5.Future<_i2.Response> fetchPostById(int? id) =>
       (super.noSuchMethod(
             Invocation.method(#fetchPostById, [id]),
-            returnValue: _i4.Future<_i2.Response>.value(
+            returnValue: _i5.Future<_i2.Response>.value(
               _FakeResponse_0(this, Invocation.method(#fetchPostById, [id])),
             ),
           )
-          as _i4.Future<_i2.Response>);
+          as _i5.Future<_i2.Response>);
 
   @override
-  _i4.Future<_i2.Response> createPost({
+  _i5.Future<_i2.Response> createPost({
     required int? communityId,
     required int? userId,
     required String? username,
@@ -77,15 +82,17 @@ class MockPostRemoteDataSource extends _i1.Mock
       (super.noSuchMethod(
             Invocation.method(#createPost, [], {
               #communityId: communityId,
+              #userId: userId,
               #username: username,
               #content: content,
               #img: img,
             }),
-            returnValue: _i4.Future<_i2.Response>.value(
+            returnValue: _i5.Future<_i2.Response>.value(
               _FakeResponse_0(
                 this,
                 Invocation.method(#createPost, [], {
                   #communityId: communityId,
+                  #userId: userId,
                   #username: username,
                   #content: content,
                   #img: img,
@@ -93,5 +100,68 @@ class MockPostRemoteDataSource extends _i1.Mock
               ),
             ),
           )
-          as _i4.Future<_i2.Response>);
+          as _i5.Future<_i2.Response>);
+
+  @override
+  _i5.Future<void> deletePost(int? postId) =>
+      (super.noSuchMethod(
+            Invocation.method(#deletePost, [postId]),
+            returnValue: _i5.Future<void>.value(),
+            returnValueForMissingStub: _i5.Future<void>.value(),
+          )
+          as _i5.Future<void>);
+
+  @override
+  _i5.Future<_i3.Post> updatePost(int? postId, String? content, String? img) =>
+      (super.noSuchMethod(
+            Invocation.method(#updatePost, [postId, content, img]),
+            returnValue: _i5.Future<_i3.Post>.value(
+              _FakePost_1(
+                this,
+                Invocation.method(#updatePost, [postId, content, img]),
+              ),
+            ),
+          )
+          as _i5.Future<_i3.Post>);
+
+  @override
+  _i5.Future<Map<String, int>> fetchReactionCounts(int? postId) =>
+      (super.noSuchMethod(
+            Invocation.method(#fetchReactionCounts, [postId]),
+            returnValue: _i5.Future<Map<String, int>>.value(<String, int>{}),
+          )
+          as _i5.Future<Map<String, int>>);
+
+  @override
+  _i5.Future<int> fetchUserReactionStatus(int? postId, int? userId) =>
+      (super.noSuchMethod(
+            Invocation.method(#fetchUserReactionStatus, [postId, userId]),
+            returnValue: _i5.Future<int>.value(0),
+          )
+          as _i5.Future<int>);
+
+  @override
+  _i5.Future<void> reactToPost(int? postId, int? userId, int? type) =>
+      (super.noSuchMethod(
+            Invocation.method(#reactToPost, [postId, userId, type]),
+            returnValue: _i5.Future<void>.value(),
+            returnValueForMissingStub: _i5.Future<void>.value(),
+          )
+          as _i5.Future<void>);
+
+  @override
+  _i5.Future<List<int>> fetchLikedPostIds(int? userId) =>
+      (super.noSuchMethod(
+            Invocation.method(#fetchLikedPostIds, [userId]),
+            returnValue: _i5.Future<List<int>>.value(<int>[]),
+          )
+          as _i5.Future<List<int>>);
+
+  @override
+  _i5.Future<List<int>> fetchDislikedPostIds(int? userId) =>
+      (super.noSuchMethod(
+            Invocation.method(#fetchDislikedPostIds, [userId]),
+            returnValue: _i5.Future<List<int>>.value(<int>[]),
+          )
+          as _i5.Future<List<int>>);
 }

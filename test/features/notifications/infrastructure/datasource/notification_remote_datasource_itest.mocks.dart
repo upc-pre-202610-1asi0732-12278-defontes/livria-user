@@ -230,12 +230,12 @@ class MockAuthLocalDataSource extends _i1.Mock
   }
 
   @override
-  _i3.Future<void> saveAuthData({
+  _i3.Future<void> saveAuthgData({
     required String? token,
     required int? userId,
   }) =>
       (super.noSuchMethod(
-            Invocation.method(#saveAuthData, [], {
+            Invocation.method(#saveAuthgData, [], {
               #token: token,
               #userId: userId,
             }),
@@ -268,4 +268,21 @@ class MockAuthLocalDataSource extends _i1.Mock
             returnValueForMissingStub: _i3.Future<void>.value(),
           )
           as _i3.Future<void>);
+
+  @override
+  _i3.Future<void> setBiometricsEnabled(bool? enabled) =>
+      (super.noSuchMethod(
+            Invocation.method(#setBiometricsEnabled, [enabled]),
+            returnValue: _i3.Future<void>.value(),
+            returnValueForMissingStub: _i3.Future<void>.value(),
+          )
+          as _i3.Future<void>);
+
+  @override
+  _i3.Future<bool> isBiometricsEnabled() =>
+      (super.noSuchMethod(
+            Invocation.method(#isBiometricsEnabled, []),
+            returnValue: _i3.Future<bool>.value(false),
+          )
+          as _i3.Future<bool>);
 }
