@@ -1,5 +1,7 @@
 # Publica el APK en GitHub Releases al pushear un tag de versión (ej. v1.0.0).
 # Requiere: permisos de workflow "Read and write" para GITHUB_TOKEN (Settings → Actions → General).
+# Requiere: secret API_BASE (Settings → Secrets and variables → Actions) con la URL base del backend,
+#   sin barra final (ej. https://api.example.com).
 
 name: Release APK
 
@@ -30,7 +32,7 @@ jobs:
       - name: Build APK (release)
         run: |
           flutter build apk --release \
-            --dart-define=API_BASE=https://livriabackend-g5afdubmcxfacjbe.chilecentral-01.azurewebsites.net
+            --dart-define=API_BASE="${{ secrets.API_BASE }}"
 
       - name: Name artifact with tag
         shell: bash
