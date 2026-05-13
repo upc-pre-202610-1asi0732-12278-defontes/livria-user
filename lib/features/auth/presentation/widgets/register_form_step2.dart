@@ -1,12 +1,14 @@
 import 'dart:io';
+import 'dart:math';
+
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../../../common/theme/app_colors.dart';
 import '../../../../common/utils/app_icons.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../../../../common/di/dependencies.dart' as di;
 import '../../infrastructure/registration_availability.dart';
+import '../helpers/biometric_post_auth.dart';
 
 class RegisterFormStep2 extends StatefulWidget {
   // datos del paso 1
@@ -35,11 +37,31 @@ class _RegisterFormStep2State extends State<RegisterFormStep2> {
   XFile? _imageFile;
   String? _errorMessage;
 
+  String _captchaText = '';
+  final _captchaController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    _generateCaptcha();
+  }
+
+  void _generateCaptcha() {
+    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789';
+    final random = Random();
+    setState(() {
+      _captchaText =
+          List.generate(6, (_) => chars[random.nextInt(chars.length)]).join();
+      _captchaController.clear();
+    });
+  }
+
   @override
   void dispose() {
     _nicknameController.dispose();
     _usernameController.dispose();
     _phraseController.dispose();
+    _captchaController.dispose();
     super.dispose();
   }
 
@@ -115,7 +137,7 @@ class _RegisterFormStep2State extends State<RegisterFormStep2> {
       );
 
       if (mounted) {
-        context.go('/home');
+        await goHomeWithOptionalBiometricPrompt(context);
       }
     } catch (e) {
       if (mounted) {
@@ -169,7 +191,16 @@ class _RegisterFormStep2State extends State<RegisterFormStep2> {
               TextFormField(
                 controller: _usernameController,
                 decoration: _buildInputDecoration('Username'),
-                validator: (v) => (v?.isEmpty ?? true) ? 'Enter your username' : null,
+                validator: (v) {
+                  if (v == null || v.isEmpty) return 'Enter your username';
+                  if (v.length > 20) {
+                    return 'Must be at most 20 characters';
+                  }
+                  if (!RegExp(r'^[a-z0-9]+$').hasMatch(v)) {
+                    return 'Only lowercase letters and numbers allowed';
+                  }
+                  return null;
+                },
               ),
               const SizedBox(height: 24),
 
@@ -219,6 +250,93 @@ class _RegisterFormStep2State extends State<RegisterFormStep2> {
                 ],
               ),
               const SizedBox(height: 32),
+
+              // CAPTCHA (debajo de la foto, antes del botón Register)
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: AppColors.white,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: AppColors.lightGrey),
+                ),
+                child: Column(
+                  children: [
+                    Text(
+                      'CAPTCHA',
+                      style: textTheme.titleSmall?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.vibrantBlue,
+                        letterSpacing: 1.2,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 16, vertical: 10),
+                          decoration: BoxDecoration(
+                            color: AppColors.darkBlue.withOpacity(0.08),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Row(
+                            children: _captchaText.split('').asMap().entries.map((entry) {
+                              const offsets = [-3.0, 2.0, -4.0, 3.0, -2.0, 4.0];
+                              const rotations = [
+                                -0.15, 0.12, -0.1, 0.18, -0.08, 0.14
+                              ];
+                              const sizes = [22.0, 19.0, 24.0, 20.0, 23.0, 18.0];
+                              final i = entry.key % 6;
+                              return Transform.translate(
+                                offset: Offset(0, offsets[i]),
+                                child: Transform.rotate(
+                                  angle: rotations[i],
+                                  child: Text(
+                                    entry.value,
+                                    style: TextStyle(
+                                      fontSize: sizes[i],
+                                      fontWeight: FontWeight.bold,
+                                      color: AppColors.darkBlue,
+                                      letterSpacing: 2,
+                                    ),
+                                  ),
+                                ),
+                              );
+                            }).toList(),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        IconButton(
+                          icon: const Icon(Icons.refresh,
+                              color: AppColors.primaryOrange),
+                          onPressed: _generateCaptcha,
+                          tooltip: 'New captcha',
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    TextFormField(
+                      controller: _captchaController,
+                      decoration: _buildInputDecoration(
+                          'Type the characters above'),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter the captcha';
+                        }
+                        if (value.trim() != _captchaText) {
+                          WidgetsBinding.instance.addPostFrameCallback((_) {
+                            if (mounted) _generateCaptcha();
+                          });
+                          return 'Incorrect, try again';
+                        }
+                        return null;
+                      },
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 24),
 
               if (_errorMessage != null)
                 Padding(
