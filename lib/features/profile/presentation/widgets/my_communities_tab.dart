@@ -49,7 +49,7 @@ class _MyCommunitiesTabState extends State<MyCommunitiesTab> {
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
       itemCount: communities.length,
-      separatorBuilder: (ctx, i) => const SizedBox(height: 16),
+      separatorBuilder: (ctx, i) => const SizedBox(height: 10),
       itemBuilder: (context, index) {
         final community = communities[index];
         return _buildCommunitiesCard(context, community);
@@ -81,16 +81,19 @@ class _MyCommunitiesTabState extends State<MyCommunitiesTab> {
   }
 
   Widget _buildPlaceholder(Community community, double borderRadius) {
+    const thumb = 55.0;
     return Container(
+      width: thumb,
+      height: thumb,
       decoration: BoxDecoration(
         color: AppColors.lightGrey,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(borderRadius)),
+        borderRadius: BorderRadius.circular(borderRadius),
       ),
       child: Center(
         child: Icon(
           community.type == 1 ? Icons.people : Icons.book,
           color: AppColors.darkBlue,
-          size: 40,
+          size: 28,
         ),
       ),
     );
@@ -105,6 +108,8 @@ class _MyCommunitiesTabState extends State<MyCommunitiesTab> {
     if (c.image.startsWith('http')) {
       imageContent = Image.network(
         c.image,
+        width: 55,
+        height: 55,
         fit: BoxFit.cover,
         errorBuilder: (context, error, stackTrace) => _buildPlaceholder(c, borderRadius),
       );
@@ -145,7 +150,7 @@ class _MyCommunitiesTabState extends State<MyCommunitiesTab> {
         ),
         borderRadius: BorderRadius.circular(12),
         child: Container(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
           decoration: BoxDecoration(
             color: AppColors.white,
             borderRadius: BorderRadius.circular(12),
@@ -191,6 +196,7 @@ class _MyCommunitiesTabState extends State<MyCommunitiesTab> {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
+                        fontSize: 12,
                         color: AppColors.accentGold,
                         fontWeight: FontWeight.w400,
                       ),
@@ -204,7 +210,7 @@ class _MyCommunitiesTabState extends State<MyCommunitiesTab> {
                 child: const Icon(
                   Icons.delete_outline,
                   color: AppColors.primaryOrange,
-                  size: 28,
+                  size: 22,
                 ),
               ),
             ],
