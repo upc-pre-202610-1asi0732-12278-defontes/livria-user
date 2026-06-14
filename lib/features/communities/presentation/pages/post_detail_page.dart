@@ -7,6 +7,7 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:livria_user/common/services/cloudinary_upload_service.dart';
 import 'package:livria_user/common/theme/app_colors.dart';
+import '../../../../common/services/analytics_service.dart';
 import '../../domain/entities/post.dart';
 import '../../domain/entities/comment.dart';
 import '../../../auth/infrastructure/datasource/auth_local_datasource.dart';
@@ -16,12 +17,14 @@ import '../widgets/use_avatar.dart';
 class PostDetailPage extends StatefulWidget {
   final Post post;
   final bool isOwner;
+  final int communityId;
   final VoidCallback? onDelete;
   final VoidCallback? onEdit;
 
   const PostDetailPage({
     super.key,
     required this.post,
+    required this.communityId,
     this.isOwner = false,
     this.onDelete,
     this.onEdit,
@@ -100,6 +103,12 @@ class _PostDetailPageState extends State<PostDetailPage> {
       content: content,
     );
     if (success && mounted) {
+      // Exp 6
+      LivriaAnalytics.logEvent('comment_in_community', {
+        'community_id': widget.communityId,
+        'post_id': widget.post.id,
+      });
+
       _commentController.clear();
     }
     if (mounted) setState(() => _isSending = false);

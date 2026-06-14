@@ -219,6 +219,13 @@ class _CommunityDetailPageState extends State<CommunityDetailPage> {
       );
 
       if (success) {
+        // Exp 6
+        LivriaAnalytics.logEvent('post_in_community', {
+          'community_id': widget.community.id,
+          'community_name': widget.community.name,
+          'has_image': imageUrl != null,
+        });
+
         _contentController.clear();
         if (mounted) setState(() => _selectedImageFile = null);
         _showSnackbar('Post successfully published!', color: AppColors.primaryOrange);
@@ -276,7 +283,7 @@ class _CommunityDetailPageState extends State<CommunityDetailPage> {
           setState(() {
             _isJoined = true;
           });
-          
+
           // Exp 5
           LivriaAnalytics.logEvent('join_community', {
             'community_id': widget.community.id,

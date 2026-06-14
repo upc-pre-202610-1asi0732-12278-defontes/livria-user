@@ -188,6 +188,7 @@ class _PostCardState extends State<PostCard> {
                         MaterialPageRoute(builder: (_) => PostDetailPage(
                           post: widget.post,
                           isOwner: widget.isOwner,
+                          communityId: widget.post.communityId,
                         )),
                       ),
                       icon: const Icon(Icons.chat_bubble_outline, size: 20, color: AppColors.darkBlue),
