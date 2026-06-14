@@ -6,6 +6,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:livria_user/common/services/cloudinary_upload_service.dart';
 import 'package:livria_user/common/theme/app_colors.dart';
 import 'package:livria_user/features/communities/infrastructure/datasource/community_remote_datasource.dart';
+import '../../../../common/services/analytics_service.dart';
 import '../../../auth/infrastructure/model/user_model.dart';
 import '../../domain/entities/community.dart';
 import '../../domain/entities/post.dart';
@@ -75,6 +76,14 @@ class _CommunityDetailPageState extends State<CommunityDetailPage> {
     super.initState();
     _communityRepository = CommunityRepositoryImpl(widget.communityRemoteDataSource);
     _postRepository = PostRepositoryImpl(widget.postRemoteDataSource);
+
+    // Exp 5
+    LivriaAnalytics.logEvent('view_community_detail', {
+      'community_id': widget.community.id,
+      'community_name': widget.community.name,
+      'community_type': _getCommunityTypeLabel(widget.community.type),
+    });
+
     _loadUserProfile();
     _fetchPosts();
   }
@@ -267,6 +276,14 @@ class _CommunityDetailPageState extends State<CommunityDetailPage> {
           setState(() {
             _isJoined = true;
           });
+          
+          // Exp 5
+          LivriaAnalytics.logEvent('join_community', {
+            'community_id': widget.community.id,
+            'community_name': widget.community.name,
+            'community_type': _getCommunityTypeLabel(widget.community.type),
+          });
+
           _showSnackbar('You have successfully joined the community ${widget.community.name}!',
               color: AppColors.primaryOrange);
         }
