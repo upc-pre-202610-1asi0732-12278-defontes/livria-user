@@ -39,6 +39,11 @@ class _PaymentPageState extends State<PaymentPage> {
       setState(() {
         _evidenceImage = File(selected.path);
       });
+
+      // Exp 2
+      LivriaAnalytics.logEvent('upload_payment_receipt', {
+        'payment_method': 'bank_transfer',
+      });
     }
   }
 
@@ -54,6 +59,12 @@ class _PaymentPageState extends State<PaymentPage> {
 
     // Cargar datos iniciales
     _loadData();
+
+    // Exp 2
+    LivriaAnalytics.logEvent('view_payment_instructions', {
+      'payment_method': 'bank_transfer',
+      'cci': _cci,
+    });
   }
   Future<void> _loadData() async {
     try {
@@ -245,6 +256,7 @@ class _PaymentPageState extends State<PaymentPage> {
       return;
     }
 
+    // Exp 1
     LivriaAnalytics.logEvent('add_payment_info', {
       'payment_type': 'bank_transfer',
       'value': _subtotal,
@@ -259,6 +271,7 @@ class _PaymentPageState extends State<PaymentPage> {
     );
 
     if (success && context.mounted) {
+      // Exp 1
       LivriaAnalytics.logEvent('purchase', {
         'value': _subtotal + provider.getShippingPrice,
         'currency': 'PEN',
