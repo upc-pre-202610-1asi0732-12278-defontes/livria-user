@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:http/http.dart' as http;
+import '../../../../common/services/analytics_service.dart';
 import '../../../../common/theme/app_colors.dart';
 import '../../../../common/di/dependencies.dart' as di;
 import '../helpers/biometric_post_auth.dart';
@@ -68,6 +69,11 @@ class _LoginFormState extends State<LoginForm> {
           _usernameController.text.trim(),
           _passwordController.text,
         );
+
+        // Exp 9
+        LivriaAnalytics.logEvent('login', {
+          'method': 'username_password',
+        });
 
         if (mounted) {
           await goHomeWithOptionalBiometricPrompt(context);
