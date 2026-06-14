@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../common/services/analytics_service.dart';
 import '../../../../common/theme/app_colors.dart';
 import '../../../book/application/services/recommendation_service.dart';
 import '../../../book/domain/entities/book.dart';
@@ -22,9 +23,8 @@ class RecommendationsPage extends StatefulWidget {
 
 class _RecommendationsPageState extends State<RecommendationsPage> {
   late final RecommendationService _recommendationService;
-
   late Future<List<Book>> _recommendationsFuture;
-
+  bool _hasLoggedImpression = false;
 
   @override
   void initState() {
@@ -54,6 +54,7 @@ class _RecommendationsPageState extends State<RecommendationsPage> {
   Future<void> _refreshRecommendations() async {
     setState(() {
       _recommendationsFuture = _recommendationService.getRecommendedBooks();
+      _hasLoggedImpression = false;
     });
   }
 
@@ -113,6 +114,18 @@ class _RecommendationsPageState extends State<RecommendationsPage> {
 
                   if (books.isEmpty) {
                     return const Center(child: Text('No se encontraron recomendaciones.'));
+                  }
+
+                  // Exp 7
+                  if (!_hasLoggedImpression) {
+                    _hasLoggedImpression = true;
+                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                      LivriaAnalytics.logEvent('view_item_list', {
+                        'list_id': 'recommendations',
+                        'list_name': 'Recommendations For You',
+                        'items_shown': books.length,
+                      });
+                    });
                   }
 
                   return GridView.builder(

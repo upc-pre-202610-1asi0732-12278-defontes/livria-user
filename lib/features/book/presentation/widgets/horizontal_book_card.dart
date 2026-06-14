@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:livria_user/common/widgets/livria_book_cover.dart';
 import 'package:go_router/go_router.dart';
+import '../../../../common/services/analytics_service.dart';
 import '../../../../common/theme/app_colors.dart';
 import '../../domain/entities/book.dart';
 
@@ -23,6 +24,16 @@ class HorizontalBookCard extends StatelessWidget {
         child: InkWell(
           borderRadius: BorderRadius.circular(16),
           onTap: () {
+            // Exp 7
+            LivriaAnalytics.logEvent('click_recommended_book', {
+              'item_id': b.id,
+              'item_name': b.title,
+              'item_category': b.genre,
+              'price': b.salePrice,
+              'currency': 'PEN',
+              'list_name': 'Recommendations For You',
+            });
+
             final bookId = Uri.encodeComponent(b.id.toString());
             GoRouter.of(context).go('/book/$bookId');
           },
