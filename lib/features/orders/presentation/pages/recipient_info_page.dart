@@ -2,14 +2,25 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
+import '../../../../common/services/analytics_service.dart';
 import '../../../../common/theme/app_colors.dart';
 import '../../../cart/presentation/widgets/cart_drawer.dart';
 import '../providers/order_provider.dart';
 import '../widgets/checkout_progress_bar.dart';
 import '../../../auth/infrastructure/datasource/auth_local_datasource.dart';
 
-class RecipientInfoPage extends StatelessWidget {
+class RecipientInfoPage extends StatefulWidget {
   const RecipientInfoPage({super.key});
+  @override
+  State<RecipientInfoPage> createState() => _RecipientInfoPageState();
+}
+
+class _RecipientInfoPageState extends State<RecipientInfoPage> {
+  @override
+  void initState() {
+    super.initState();
+    LivriaAnalytics.logEvent('begin_checkout', null);
+  }
 
   @override
   Widget build(BuildContext context) {

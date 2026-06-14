@@ -6,6 +6,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
+import '../../../../common/services/analytics_service.dart';
 import '../../../../common/theme/app_colors.dart';
 import '../../../auth/infrastructure/datasource/auth_local_datasource.dart';
 import '../../../cart/domain/entities/cart_item.dart';
@@ -244,6 +245,13 @@ class _PaymentPageState extends State<PaymentPage> {
       return;
     }
 
+    LivriaAnalytics.logEvent('add_payment_info', {
+      'payment_type': 'bank_transfer',
+      'value': _subtotal,
+      'currency': 'PEN',
+    });
+
+
     final success = await provider.submitOrderWithEvidence(
         context,
         _evidenceImage!,
@@ -251,6 +259,12 @@ class _PaymentPageState extends State<PaymentPage> {
     );
 
     if (success && context.mounted) {
+      LivriaAnalytics.logEvent('purchase', {
+        'value': _subtotal + provider.getShippingPrice,
+        'currency': 'PEN',
+        'shipping': provider.getShippingPrice,
+      });
+
       provider.clearForm();
       context.go('/checkout/confirmation');
     }

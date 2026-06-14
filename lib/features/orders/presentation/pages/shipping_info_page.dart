@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
+import '../../../../common/services/analytics_service.dart';
 import '../../../../common/theme/app_colors.dart';
 import '../../../auth/infrastructure/datasource/auth_local_datasource.dart';
 import '../../../cart/presentation/widgets/cart_drawer.dart';
@@ -160,6 +161,10 @@ class ShippingInfoPage extends StatelessWidget {
                             return;
                           }
                         }
+
+                        LivriaAnalytics.logEvent('add_shipping_info', {
+                          'shipping_tier': orderProvider.isDelivery ? 'home_delivery' : 'pick_up',
+                        });
 
                         context.push('/checkout/payment');
                         debugPrint("Ir a Pago ->");
