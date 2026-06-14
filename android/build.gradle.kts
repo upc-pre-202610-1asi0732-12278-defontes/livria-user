@@ -1,12 +1,8 @@
-buildscript {
-    repositories {
-        google()
-        mavenCentral()
-    }
-    dependencies {
-        classpath("com.android.tools.build:gradle:8.1.1")
-        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:1.8.0")
-    }
+plugins {
+    id("com.android.application") apply false
+    id("com.android.library") apply false
+    id("org.jetbrains.kotlin.android") apply false
+    id("com.google.gms.google-services") apply false
 }
 
 allprojects {
@@ -23,12 +19,20 @@ val newBuildDir: Directory =
 rootProject.layout.buildDirectory.value(newBuildDir)
 
 subprojects {
-    val newSubprojectBuildDir: Directory = newBuildDir.dir(project.name)
-    project.layout.buildDirectory.value(newSubprojectBuildDir)
-}
+    afterEvaluate {
+        extensions.findByType(com.android.build.api.dsl.CommonExtension::class.java)?.apply {
+            compileSdk = 34
+        }
+    }
 
-subprojects {
-    project.evaluationDependsOn(":app")
+    plugins.withType<com.android.build.gradle.api.AndroidBasePlugin> {
+        if (project.name == "flutter_plugin_android_lifecycle") {
+            val flutterExt = rootProject.extensions.findByName("flutter")
+            if (flutterExt != null) {
+                project.extensions.extraProperties.set("flutter", flutterExt)
+            }
+        }
+    }
 }
 
 tasks.register<Delete>("clean") {
