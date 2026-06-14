@@ -8,6 +8,7 @@ import 'package:livria_user/features/book/infrastructure/datasource/favorite_rem
 import 'package:livria_user/features/auth/infrastructure/datasource/auth_local_datasource.dart';
 import 'package:http/http.dart' as http;
 import 'package:livria_user/features/book/presentation/widgets/review_card.dart';
+import '../../../../common/services/analytics_service.dart';
 import '../../../../common/theme/app_colors.dart';
 import '../../application/services/exclusion_service.dart';
 import '../../application/services/review_service.dart';
@@ -107,6 +108,15 @@ class _SingleBookViewState extends State<SingleBookView> {
           _selectedQuantity,
           userId
       );
+
+      // Exp 3
+      LivriaAnalytics.logEvent('add_to_cart', {
+        'item_id': widget.b.id,
+        'item_name': widget.b.title,
+        'price': widget.b.salePrice,
+        'quantity': _selectedQuantity,
+        'currency': 'PEN',
+      });
 
       if (!mounted) return;
 
