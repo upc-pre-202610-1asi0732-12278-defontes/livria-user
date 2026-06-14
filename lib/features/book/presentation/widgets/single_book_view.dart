@@ -109,14 +109,18 @@ class _SingleBookViewState extends State<SingleBookView> {
           userId
       );
 
-      // Exp 3
+      // Exp 3 (y 8)
       LivriaAnalytics.logEvent('add_to_cart', {
         'item_id': widget.b.id,
         'item_name': widget.b.title,
         'price': widget.b.salePrice,
         'quantity': _selectedQuantity,
         'currency': 'PEN',
+        'via_recommendation': AnalyticsContext.viaRecommendation,
       });
+
+      // Exp 8
+      AnalyticsContext.reset();
 
       if (!mounted) return;
 

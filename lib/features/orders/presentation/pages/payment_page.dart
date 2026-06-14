@@ -271,14 +271,17 @@ class _PaymentPageState extends State<PaymentPage> {
     );
 
     if (success && context.mounted) {
-      // Exp 1
+      // Exp 1 (y 8)
       LivriaAnalytics.logEvent('purchase', {
         'value': _subtotal + provider.getShippingPrice,
         'currency': 'PEN',
         'shipping': provider.getShippingPrice,
+        'via_recommendation': AnalyticsContext.viaRecommendation,
       });
 
       provider.clearForm();
+      // Exp 8
+      AnalyticsContext.reset();
       context.go('/checkout/confirmation');
     }
   }

@@ -34,6 +34,9 @@ class HorizontalBookCard extends StatelessWidget {
               'list_name': 'Recommendations For You',
             });
 
+            // Exp 8
+            AnalyticsContext.markFromRecommendation();
+
             final bookId = Uri.encodeComponent(b.id.toString());
             GoRouter.of(context).go('/book/$bookId');
           },
