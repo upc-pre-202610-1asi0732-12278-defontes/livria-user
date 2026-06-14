@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:livria_user/common/theme/app_colors.dart';
 import 'package:livria_user/common/utils/app_icons.dart';
+import '../../../../common/services/analytics_service.dart';
+import '../../../profile/presentation/pages/subscription_payment_page.dart';
 import '../../application/services/community_service.dart';
 import '../../domain/entities/community.dart';
 import '../../infrastructure/repositories/community_repository_api.dart';
@@ -47,6 +49,10 @@ class _CommunitiesPageState extends State<CommunitiesPage> {
   @override
   void initState() {
     super.initState();
+
+    // Exp 4
+    LivriaAnalytics.logEvent('click_community_section', null);
+
     _checkSubscriptionAndLoadCommunities();
   }
 
@@ -100,6 +106,13 @@ class _CommunitiesPageState extends State<CommunitiesPage> {
           _isCheckingAccess = false;
           _hasCommunityPlan = hasPlan;
         });
+
+        // Exp 4
+        if (!hasPlan) {
+          LivriaAnalytics.logEvent('view_paywall_screen', {
+            'subscription_required': 'communityplan',
+          });
+        }
 
         // cargar comunidades si tiene plan
         if (hasPlan) {
@@ -369,6 +382,39 @@ class _CommunitiesPageState extends State<CommunitiesPage> {
               'To access this feature and join communities, please subscribe to the Community Plan.',
               style: Theme.of(context).textTheme.bodyLarge,
               textAlign: TextAlign.center,
+            ),
+
+            const SizedBox(height: 32),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: () {
+                  // Exp 4
+                  LivriaAnalytics.logEvent('click_subscribe_plan', {
+                    'plan': 'communityplan',
+                    'trigger': 'communities_paywall',
+                  });
+
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => const SubscriptionProofPage(),
+                    ),
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primaryOrange,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8)),
+                ),
+                child: const Text(
+                  'SUBSCRIBE NOW',
+                  style: TextStyle(
+                      color: AppColors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16),
+                ),
+              ),
             ),
           ],
         ),
