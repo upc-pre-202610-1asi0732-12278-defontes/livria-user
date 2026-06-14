@@ -231,6 +231,13 @@ class _CommunityDetailPageState extends State<CommunityDetailPage> {
         _showSnackbar('Post successfully published!', color: AppColors.primaryOrange);
       }
     } catch (e) {
+      // Exp 10
+      LivriaAnalytics.logEvent('app_exception', {
+        'screen': 'community_detail',
+        'error': e.toString().substring(0, 100),
+        'fatal': false,
+      });
+      
       _showSnackbar('Error publishing post: $e', color: Colors.red);
     } finally {
       if (mounted) setState(() => _isPosting = false);

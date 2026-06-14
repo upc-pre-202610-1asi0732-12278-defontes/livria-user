@@ -136,6 +136,14 @@ class _SingleBookViewState extends State<SingleBookView> {
 
     } catch (e) {
       debugPrint('🔴 Cart error full: $e');
+
+      // Exp 10
+      LivriaAnalytics.logEvent('app_exception', {
+        'screen': 'book_detail',
+        'error': e.toString().substring(0, 100),
+        'fatal': false,
+      });
+
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error: ${e.toString()}'), backgroundColor: AppColors.errorRed),

@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:livria_user/common/theme/app_theme.dart';
 import 'package:livria_user/common/routes/app_router.dart';
@@ -9,6 +11,7 @@ import 'package:http/http.dart' as http;
 
 import 'package:livria_user/common/di/dependencies.dart' as di;
 
+import 'common/services/analytics_service.dart';
 import 'features/communities/domain/repositories/post_repository_impl.dart';
 import 'features/communities/infrastructure/datasource/comment_remote_datasource.dart';
 import 'features/communities/infrastructure/datasource/post_remote_datasource.dart';
@@ -34,6 +37,23 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+
+  // Exp 10
+  FlutterError.onError = (errorDetails) {
+    LivriaAnalytics.logEvent('app_exception', {
+      'screen': 'flutter_framework',
+      'error': errorDetails.exceptionAsString().substring(0, 100),
+      'fatal': true,
+    });
+  };
+  PlatformDispatcher.instance.onError = (error, stack) {
+    LivriaAnalytics.logEvent('app_exception', {
+      'screen': 'async_error',
+      'error': error.toString().substring(0, 100),
+      'fatal': true,
+    });
+    return true;
+  };
 
   runApp(const MyApp());
 }

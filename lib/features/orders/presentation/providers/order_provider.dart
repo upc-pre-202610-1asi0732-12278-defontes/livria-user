@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import '../../../../common/services/analytics_service.dart';
 import '../../../auth/infrastructure/datasource/auth_local_datasource.dart';
 import '../../application/services/payment_service.dart';
 import '../../domain/entities/order.dart';
@@ -133,6 +134,13 @@ class OrderProvider extends ChangeNotifier {
     } catch (e) {
       _isLoading = false;
       notifyListeners();
+
+      // Exp 10
+      LivriaAnalytics.logEvent('app_exception', {
+        'screen': 'payment_page',
+        'error': e.toString().substring(0, 100),
+        'fatal': false,
+      });
 
       // Feedback visual del error
       ScaffoldMessenger.of(context).showSnackBar(
