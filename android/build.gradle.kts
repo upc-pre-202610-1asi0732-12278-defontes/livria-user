@@ -19,7 +19,6 @@ rootProject.layout.buildDirectory.value(newBuildDir)
 
 subprojects {
     project.layout.buildDirectory.value(newBuildDir.dir(project.name))
-    project.evaluationDependsOn(":app")
 
     afterEvaluate {
         extensions.findByType(com.android.build.api.dsl.CommonExtension::class.java)?.apply {
