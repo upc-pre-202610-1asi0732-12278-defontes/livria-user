@@ -55,8 +55,11 @@ jobs:
           fi
 
           echo "Using APK: $APK"
-          mkdir -p build/app/outputs/flutter-apk
-          cp "$APK" build/app/outputs/flutter-apk/app-release.apk
+          CANONICAL="build/app/outputs/flutter-apk/app-release.apk"
+          if [ "$APK" != "$CANONICAL" ]; then
+            mkdir -p build/app/outputs/flutter-apk
+            cp "$APK" "$CANONICAL"
+          fi
 
       - name: Name artifact with tag
         shell: bash
