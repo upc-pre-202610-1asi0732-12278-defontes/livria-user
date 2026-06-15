@@ -12,20 +12,36 @@ class CheckoutProgressBar extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        _buildStepIcon(context, 1, Icons.person), // User (Actual)
+        _buildStepIcon(
+          context,
+          1,
+          Icon(Icons.person, color: _iconColor(context, 1), size: 20),
+        ),
         const SizedBox(width: 15),
-        _buildStepIcon(context, 2, FontAwesomeIcons.box), // Shipping
+        _buildStepIcon(
+          context,
+          2,
+          FaIcon(FontAwesomeIcons.box, color: _iconColor(context, 2), size: 20),
+        ),
         const SizedBox(width: 15),
-        _buildStepIcon(context, 3, Icons.credit_card), // Payment
+        _buildStepIcon(
+          context,
+          3,
+          Icon(Icons.credit_card, color: _iconColor(context, 3), size: 20),
+        ),
       ],
     );
   }
 
-  Widget _buildStepIcon(BuildContext context, int stepIndex, IconData icon) {
+  Color _iconColor(BuildContext context, int stepIndex) {
+    final bool isActive = stepIndex == currentStep;
+    return isActive ? AppColors.white : AppColors.darkBlue;
+  }
+
+  Widget _buildStepIcon(BuildContext context, int stepIndex, Widget icon) {
     final bool isActive = stepIndex == currentStep;
 
     final color = isActive ? AppColors.darkBlue : AppColors.secondaryYellow;
-    final iconColor = isActive ? AppColors.white : AppColors.darkBlue;
 
     return Container(
       width: 40,
@@ -34,7 +50,7 @@ class CheckoutProgressBar extends StatelessWidget {
         color: color,
         shape: BoxShape.circle,
       ),
-      child: Icon(icon, color: iconColor, size: 20),
+      child: Center(child: icon),
     );
   }
 }

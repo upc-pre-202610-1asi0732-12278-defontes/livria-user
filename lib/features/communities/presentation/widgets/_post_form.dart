@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:livria_user/common/theme/app_colors.dart';
 import 'package:livria_user/common/utils/app_icons.dart';
 
@@ -120,12 +121,12 @@ class PostForm extends StatelessWidget {
                 children: [
                   IconButton(
                     onPressed: onCameraPressed,
-                    icon: const Icon(AppIcons.camera, color: AppColors.vibrantBlue),
+                    icon: const FaIcon(AppIcons.camera, color: AppColors.vibrantBlue),
                     tooltip: 'Cámara',
                   ),
                   IconButton(
                     onPressed: onGalleryPick,
-                    icon: const Icon(AppIcons.gallery, color: AppColors.vibrantBlue),
+                    icon: const FaIcon(AppIcons.gallery, color: AppColors.vibrantBlue),
                     tooltip: 'Galería',
                   ),
                   const SizedBox(width: 8),

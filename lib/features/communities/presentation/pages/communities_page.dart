@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:livria_user/common/theme/app_colors.dart';
 import 'package:livria_user/common/utils/app_icons.dart';
 import '../../../../common/services/analytics_service.dart';
@@ -225,7 +226,7 @@ class _CommunitiesPageState extends State<CommunitiesPage> {
             ),
             backgroundColor: AppColors.white,
           ),
-          icon: const Icon(
+          icon: const FaIcon(
             AppIcons.post,
             size: 16,
             color: AppColors.primaryOrange,
@@ -288,7 +289,7 @@ class _CommunitiesPageState extends State<CommunitiesPage> {
                 width: 50,
                 height: 50 - (borderThickness * 2),
                 color: AppColors.primaryOrange,
-                child: const Icon(
+                child: const FaIcon(
                   AppIcons.search,
                   color: AppColors.white,
                   size: 20,

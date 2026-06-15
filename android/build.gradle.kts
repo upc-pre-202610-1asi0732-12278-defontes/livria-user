@@ -21,7 +21,7 @@ rootProject.layout.buildDirectory.value(newBuildDir)
 subprojects {
     afterEvaluate {
         extensions.findByType(com.android.build.api.dsl.CommonExtension::class.java)?.apply {
-            compileSdk = 34
+            compileSdk = 36
         }
     }
 

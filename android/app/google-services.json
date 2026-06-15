@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "303943428374",
+    "project_id": "livriaadmindeploy",
+    "storage_bucket": "livriaadmindeploy.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:303943428374:android:60d9f55922094c3cba8837",
+        "android_client_info": {
+          "package_name": "com.example.adminlivria"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCUHBfl00Dmx3ozr4YW8yCfmFRwgBOv6MI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:303943428374:android:485ae604f7ea7940ba8837",
+        "android_client_info": {
+          "package_name": "com.livria.livria_user"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCUHBfl00Dmx3ozr4YW8yCfmFRwgBOv6MI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

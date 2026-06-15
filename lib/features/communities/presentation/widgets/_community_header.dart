@@ -1,6 +1,7 @@
 // community_header.dart
 
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:livria_user/common/theme/app_colors.dart';
 import 'package:livria_user/common/utils/app_icons.dart';
 import '../../domain/entities/community.dart';
@@ -70,7 +71,7 @@ class CommunityHeader extends StatelessWidget {
     final String buttonText = isJoined ? 'LEAVE' : 'JOIN +';
     final Icon buttonIcon = isJoined
         ? const Icon(Icons.exit_to_app_rounded, size: 18, color: AppColors.white)
-        : const Icon(AppIcons.post, size: 18, color: AppColors.white);
+        : const FaIcon(AppIcons.post, size: 18, color: AppColors.white);
 
     final Widget bannerPlaceholder = Container(
       color: AppColors.softTeal.withOpacity(0.5),
