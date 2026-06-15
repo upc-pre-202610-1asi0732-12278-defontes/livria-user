@@ -12,13 +12,15 @@ allprojects {
     }
 }
 
+// Flutter expects APK artifacts under <project>/build/, not android/app/build/.
 val newBuildDir: Directory =
-    rootProject.layout.buildDirectory
-        .dir("../../build")
-        .get()
+    rootProject.layout.projectDirectory.dir("../build")
 rootProject.layout.buildDirectory.value(newBuildDir)
 
 subprojects {
+    project.layout.buildDirectory.value(newBuildDir.dir(project.name))
+    project.evaluationDependsOn(":app")
+
     afterEvaluate {
         extensions.findByType(com.android.build.api.dsl.CommonExtension::class.java)?.apply {
             compileSdk = 36

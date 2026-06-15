@@ -32,7 +32,31 @@ jobs:
       - name: Build APK (release)
         run: |
           flutter build apk --release \
-            --dart-define=API_BASE="${{ secrets.API_BASE }}"
+            --dart-define=API_BASE="${{ secrets.API_BASE }}" || true
+
+          APK=""
+          for candidate in \
+            build/app/outputs/flutter-apk/app-release.apk \
+            android/app/build/outputs/apk/release/app-release.apk \
+            build/app/outputs/apk/release/app-release.apk; do
+            if [ -f "$candidate" ]; then
+              APK="$candidate"
+              break
+            fi
+          done
+
+          if [ -z "$APK" ]; then
+            APK="$(find . -path '*/outputs/apk/release/app-release.apk' -not -path '*/intermediates/*' | head -1)"
+          fi
+
+          if [ -z "$APK" ]; then
+            echo "APK not found after build"
+            exit 1
+          fi
+
+          echo "Using APK: $APK"
+          mkdir -p build/app/outputs/flutter-apk
+          cp "$APK" build/app/outputs/flutter-apk/app-release.apk
 
       - name: Name artifact with tag
         shell: bash
